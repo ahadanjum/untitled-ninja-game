@@ -99,7 +99,7 @@ namespace Kaname.Game
 
         void Swing(SwingDir d, bool alt, double at, double live1, double total)
         {
-            swing.Dir = d; swing.Alt = alt; swing.T = at; swing.Live1 = live1; swing.Total = total; atk = swing;
+            swing.Dir = d; swing.Alt = alt; swing.T = at; swing.Live0 = 0.03; swing.Live1 = live1; swing.Total = total; atk = swing;     // (the box goes live at 0.03 s, as the sword's does)
         }
 
         void Patrol(Hero h, double speed)

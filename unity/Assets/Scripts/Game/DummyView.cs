@@ -14,10 +14,11 @@ namespace Kaname.Game
 
         public DummyView(Transform parent, Material material) { ink = new InkRenderer(parent, "Dummies", material, 8); }
 
-        public void Draw(List<Dummy> dummies)
+        public void Draw(List<Dummy> dummies, bool boxes = false)
         {
             canvas.Clear();
             foreach (var d in dummies) DummyArt.Draw(canvas, d);
+            if (boxes) foreach (var d in dummies) Brush.BoxOutline(canvas, d.Box(), 0.4);           // the debug view (the ` key): the boxes a blow is judged against, fainter than the blade's
             ink.Show(canvas);
         }
 

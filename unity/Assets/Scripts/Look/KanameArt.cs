@@ -163,16 +163,21 @@ namespace Kaname.Look
 
         // The trail of a cut: the sweep of the blade's outer part, a crescent hair-thin where the blade began and widest at its tip, whose outer edge
         // is the path of the blade's tip itself (so the trail hangs off the blade, never ahead of it). Violet-black with a pale violet edge, thinning
-        // and fading as the cut ends (D087: the essence shows in the swing). Drawn in his own frame about his hand, so it moves with him exactly as
-        // the blade does.
+        // and fading as the cut ends (D087: the essence shows in the swing). Drawn in his own frame, so it moves with him. A forward, up or down cut's trail is
+        // drawn about the swing's pivot, not his hand, so it stays where the cut happened while the hand goes back to the hilt as it fades; it runs from N (where
+        // the cut enters the box) to the blade, capped at O, and there is none before the box goes live. The draw's is drawn about the hand, as it was.
         static void DrawCrescent(InkCanvas ctx, HeroLook P, Pose Q)
         {
             var sw = P.Swing; double al = 1 - sw.Fade; if (Q.WA < 0.02 || al < 0.02) return;
-            var g = HeroLook.Swings(sw.Dir); var (b0, b1) = HeroLook.SwingAngles(sw); double e0 = Mathx.Lerp(b0, b1, HeroLook.SwingEase(sw.P));
+            bool pinned = HeroLook.Pinned(sw.Dir); if (pinned && sw.T < sw.Live0 - 1e-6) return;
+            var g = HeroLook.Swings(sw.Dir, sw.Alt); var (b0, b1) = HeroLook.SwingAngles(sw); double e0 = HeroLook.SwingAngle(sw);
+            e0 = b1 > b0 ? Mathx.Clamp(e0, b0, b1) : Mathx.Clamp(e0, b1, b0);                                       // nothing before the cut enters the box (N) and nothing past O: none over the wind-up or the follow-through
             if (Math.Abs(e0 - b0) < 0.03) return;
             double lag = (b1 > b0 ? -1 : 1) * Math.Atan2(HeroLook.BladeLen * 0.1, 5 + HeroLook.BladeLen);          // the curved blade's tip trails its axis a little: so does the trail's tip
-            double a0 = b0 + lag, span = e0 - b0, W = (sw.Dir == SwingDir.Draw ? 22 : 14) * (1 - 0.4 * sw.Fade), px = Q.W1x, py = Q.W1y; const int M = 40;
+            double pin = pinned ? P.Vis.Lean : 0;                                                                   // a cut's arc is the blade's angle in the world: the lean is taken off, as the blade's is
+            double a0 = b0 + lag - pin, span = e0 - b0, W = (sw.Dir == SwingDir.Draw ? 22 : 14) * (1 - 0.4 * sw.Fade), px = pinned ? g.Px : Q.W1x, py = pinned ? g.Py : Q.W1y; const int M = 40;
             (double x, double y) Pt(double t, double r) => (px + Math.Cos(a0 + span * t) * r, py + Math.Sin(a0 + span * t) * r);
+            var tf = Pt(0, g.R); var tt = Pt(1, g.R); ctx.Mark("trail.from", tf.x, tf.y); ctx.Mark("trail.to", tt.x, tt.y);        // the trail's two ends, at the tip's radius (for the tests)
             // a crescent from t0 to the tip: its outer edge is the tip's path (radius rOut), its inner edge comes in by a width that grows from nothing at t0
             void Band(double t0, double wMul, double rOut, Rgba fill)
             {
@@ -208,6 +213,7 @@ namespace Kaname.Look
             double seed = Math.Floor(P.T * 24), flick = 0.88 + 0.12 * Hash2(seed, 99);
             ctx.Save(); ctx.Translate(Q.W1x, Q.W1y); ctx.Rotate(Q.Ang); if (a1 < a0) ctx.Scale(1, -1);                      // the cutting edge always leads
             ctx.GlobalAlpha = al;
+            for (int i = 0; i <= 4; i++) { double t = i / 4.0, u = 1 - t; ctx.Mark("blade." + i, u * u * 5.5 + 2 * u * t * mid + t * t * tipX, 2 * u * t * -1.2 + t * t * tipY); }   // the blade's axis, guard to tip, for the tests (blade.4 is the tip)
             // the aura: a soft halo along the blade and glow where the edge burns
             ctx.LineCap = Cap.Round; ctx.BeginPath(); ctx.MoveTo(5.5, 0); ctx.QuadraticCurveTo(mid, -1.2, tipX, tipY);
             ctx.LineWidth = 11; ctx.StrokeStyle(C(Palette.CurseRgb, 0.16 * flick)); ctx.Stroke(); ctx.LineWidth = 6; ctx.StrokeStyle(C(Palette.CurseRgb, 0.3 * flick)); ctx.Stroke();

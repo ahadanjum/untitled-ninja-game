@@ -1,5 +1,6 @@
 using System;
 using Kaname.Ink;
+using Kaname.Sim;
 
 namespace Kaname.Look
 {
@@ -28,6 +29,12 @@ namespace Kaname.Look
             var g = Gradient.Radial(x, y, r);
             g.AddColorStop(0, Rgba.Of(rgb, a)); g.AddColorStop(1, Rgba.Of(rgb, 0));
             ctx.FillStyle(g); ctx.BeginPath(); ctx.Arc(x, y, r, 0, 7); ctx.Fill();
+        }
+
+        // a thin pale-blue outline of a hit box, for the developer's debug view and the strike sheet's box option (rule 5: never in play; never red or yellow)
+        public static void BoxOutline(InkCanvas ctx, Box b, double alpha)
+        {
+            ctx.Save(); ctx.LineWidth = 0.6; ctx.StrokeStyle(Palette.Rim.WithAlpha((float)alpha)); ctx.StrokeRect(b.X, b.Y, b.W, b.H); ctx.Restore();
         }
 
         // a steady pseudo-random 0..1 (the blade's flicker)

@@ -51,6 +51,7 @@ namespace Kaname.Ink
         public readonly List<V2> Verts = new List<V2>();
         public readonly List<Rgba> Colors = new List<Rgba>();
         public readonly List<int> Indices = new List<int>();
+        public readonly Dictionary<string, V2> Marks = new Dictionary<string, V2>();       // named points the art leaves behind for the tests: drawn as nothing, kept as they came out of the transform
 
         // ---- state (saved and restored together) ----
         struct M
@@ -100,9 +101,12 @@ namespace Kaname.Ink
         public void Scale(double x, double y) => st.Ctm = st.Ctm.Then(new M { A = x, D = y });
         public void Rotate(double a) { double c = Math.Cos(a), s = Math.Sin(a); st.Ctm = st.Ctm.Then(new M { A = c, B = s, C = -s, D = c }); }
 
+        // a named point, taken through the transform in force (the world point the art's own coordinates land on); it draws nothing
+        public void Mark(string name, double x, double y) => Marks[name] = st.Ctm.Apply(new V2(x, y));
+
         public void Clear()
         {
-            Verts.Clear(); Colors.Clear(); Indices.Clear();
+            Verts.Clear(); Colors.Clear(); Indices.Clear(); Marks.Clear();
             stack.Clear(); st = new State(); path.Clear(); closed.Clear();
         }
 

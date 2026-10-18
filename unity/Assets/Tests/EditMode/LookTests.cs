@@ -38,10 +38,11 @@ namespace Kaname.Tests
         static IEnumerable<PoseKind> AllPoses() => (PoseKind[])Enum.GetValues(typeof(PoseKind));
 
         // a fingerprint of everything the look holds
-        static string State(HeroLook l)
+        internal static string State(HeroLook l)
         {
             var v = l.Vis; var sb = new System.Text.StringBuilder();
             sb.Append($"{v.Run:R} {v.Air:R} {v.Rise:R} {v.Lean:R} {v.Sq:R} {v.Sqv:R} {v.Dash:R} {v.Sprint:R} {v.Atk:R} {v.Charge:R} {l.RunT:R} {l.T:R} {l.Blink:R} {l.ScarfTh:R} {l.Trail.Count} {l.Swing.P:R} {l.Swing.Fade:R}");
+            sb.Append($" {l.Swing.Dir} {l.Swing.Alt} {l.Swing.T:R} {l.Swing.Live0:R} {l.Swing.Live1:R} {l.Swing.Total:R}");
             foreach (var p in l.Scarf) sb.Append($" {p.X:R} {p.Y:R} {p.Ox:R} {p.Oy:R}");
             return sb.ToString();
         }
@@ -172,11 +173,67 @@ namespace Kaname.Tests
         [Test]
         public void TheSwingsHaveTheDesignedArcs()
         {
-            var f = HeroLook.Swings(SwingDir.Fwd); Assert.AreEqual(-1.15, f.A0); Assert.AreEqual(1.15, f.A1); Assert.AreEqual(45, f.R);
-            var u = HeroLook.Swings(SwingDir.Up); Assert.AreEqual(-2.5, u.A0); Assert.AreEqual(-0.64, u.A1);
-            var dr = HeroLook.Swings(SwingDir.Draw); Assert.AreEqual(-0.5, dr.A0); Assert.AreEqual(0.2, dr.A1);
-            Assert.AreEqual((1.15, -1.15), HeroLook.SwingAngles(new SwingState { Dir = SwingDir.Fwd, Alt = true }), "alternate forward cuts run the other way");
+            // a forward, up or down cut: the pivot and the five angles (cocked, enters the box, first live step, out, end), in the world's frame; the trail runs N to O (D123, revision 1)
+            void Arc(string what, HeroLook.Arc a, double px, double py, double c, double n, double i, double o, double e)
+            {
+                Assert.AreEqual(px, a.Px, what); Assert.AreEqual(py, a.Py, what); Assert.AreEqual(45, a.R, what);
+                Assert.AreEqual(c, a.C, what + " C"); Assert.AreEqual(n, a.N, what + " N"); Assert.AreEqual(i, a.I, what + " I"); Assert.AreEqual(o, a.O, what + " O"); Assert.AreEqual(e, a.E, what + " E");
+            }
+            Arc("forward, high to low", HeroLook.Swings(SwingDir.Fwd), 11, -15, -1.50, -0.68, -0.22, 0.19, 0.20);
+            Arc("forward, low to high", HeroLook.Swings(SwingDir.Fwd, true), 11, -15, 0.09, 0.09, -0.30, -0.76, -1.05);
+            Arc("up", HeroLook.Swings(SwingDir.Up), 14, -22, -2.85, -2.60, -1.80, -1.22, -1.00);
+            Arc("down", HeroLook.Swings(SwingDir.Down), 12, -10, 0.80, 1.20, 1.75, 2.45, 2.60);
+            Assert.AreEqual(0.08, HeroLook.SweepTime, "the sweep takes 0.08 s from the box going live");
+            foreach (var (dir, alt) in new[] { (SwingDir.Fwd, false), (SwingDir.Fwd, true), (SwingDir.Up, false), (SwingDir.Down, false) })
+            {
+                var a = HeroLook.Swings(dir, alt); double d = Math.Sign(a.O - a.I);
+                Assert.GreaterOrEqual(d * (a.N - a.C), 0, $"{dir}: N lies on the wind-up, at or past the cock"); Assert.LessOrEqual(d * (a.N - a.I), 0, $"{dir}: and before I, so the wind-up passes it");
+                Assert.Greater(d * (a.O - a.I), 0, $"{dir}: the sweep runs on from I to O"); Assert.GreaterOrEqual(d * (a.E - a.O), 0, $"{dir}: and the follow-through does not turn back");
+            }
+            // the draw and the guard are as they were: one arc, eased over the draw's own time
+            var dr = HeroLook.Swings(SwingDir.Draw); Assert.AreEqual(-0.5, dr.A0); Assert.AreEqual(0.2, dr.A1); Assert.AreEqual(14, dr.Px); Assert.AreEqual(-15, dr.Py); Assert.AreEqual(45, dr.R);
+            var gd = HeroLook.Swings(SwingDir.Guard); Assert.AreEqual(-1.1, gd.A0); Assert.AreEqual(-1.1, gd.A1); Assert.AreEqual(14, gd.Px); Assert.AreEqual(-18, gd.Py);
+            Assert.AreEqual((-0.68, 0.19), HeroLook.SwingAngles(new SwingState { Dir = SwingDir.Fwd }), "the trail's span of the high-to-low cut: N to O");
+            Assert.AreEqual((0.09, -0.76), HeroLook.SwingAngles(new SwingState { Dir = SwingDir.Fwd, Alt = true }), "low to high is an arc of its own, running the other way");
+            Assert.AreEqual((-0.5, 0.2), HeroLook.SwingAngles(new SwingState { Dir = SwingDir.Draw }));
             Assert.AreEqual(0, HeroLook.SwingEase(0)); Assert.AreEqual(1, HeroLook.SwingEase(1), 1e-12);
+        }
+
+        [Test]
+        public void ACutFollowsFourPhasesReadFromTheSwingsOwnTimes()
+        {
+            foreach (var (dir, alt) in new[] { (SwingDir.Fwd, false), (SwingDir.Fwd, true), (SwingDir.Up, false), (SwingDir.Down, false) })
+            {
+                var g = HeroLook.Swings(dir, alt); var sw = new SwingState { Dir = dir, Alt = alt, Live0 = 0.03, Live1 = 0.14, Total = 0.2 };
+                double At(double t) { sw.T = t; return HeroLook.SwingAngle(sw); }
+                string w = $"{dir}{(alt ? " alt" : "")}";
+                Assert.AreEqual(g.C, At(0), 1e-12, w + ": cocked at the press");
+                Assert.AreEqual(g.I, At(0.03), 1e-12, w + ": at I the moment the box goes live");
+                Assert.AreEqual(g.O, At(0.11), 1e-12, w + ": at O when the sweep is done (0.08 s later)");
+                Assert.AreEqual(g.O, At(0.125), 1e-12, w + ": held at O while the blade is live"); Assert.AreEqual(g.O, At(0.139), 1e-12, w + ": still");
+                Assert.AreEqual(g.O, At(0.14), 1e-12, w + ": the follow-through starts from O");
+                Assert.AreEqual(g.E, At(0.2), 1e-12, w + ": and ends at E when the swing does");
+                Assert.AreEqual(g.C + (g.I - g.C) * 0.25, At(0.015), 1e-12, w + ": the wind-up accelerates in (u squared)");
+                Assert.AreEqual(g.I + (g.O - g.I) * 0.75, At(0.03 + 0.04), 1e-12, w + ": and the sweep eases out: three quarters done in half the time");
+                double dirS = Math.Sign(g.O - g.I), last = At(0.03);
+                for (double t = 0.03; t <= 0.2 + 1e-9; t += 0.001) { double a = At(t); Assert.GreaterOrEqual(dirS * (a - last), -1e-12, $"{w}: never turns back at t={t:0.000}"); last = a; }
+            }
+            // the draw and the guard do not read the swing's times: they keep the old eased arc
+            var d = new SwingState { Dir = SwingDir.Draw, P = 0.5 }; Assert.AreEqual(-0.5 + 0.7 * HeroLook.SwingEase(0.5), HeroLook.SwingAngle(d), 1e-12);
+        }
+
+        [Test]
+        public void ALeaningCutIsPinnedToTheWorldTheHandMovesButTheBladeDoesNotTilt()
+        {
+            double Angle(SwingDir dir, double lean)
+            {
+                var l = new HeroLook(new Tuning()); l.Vis.Atk = 1; l.Vis.Lean = lean;
+                l.Swing.Dir = dir; l.Swing.T = 0.1; l.Swing.Live0 = 0.03; l.Swing.Live1 = 0.14; l.Swing.Total = 0.2; l.Swing.P = 0.5;
+                return l.Place().Ang + lean;                                                  // the blade's angle in the world: the body's angle, and the body's lean
+            }
+            foreach (var dir in new[] { SwingDir.Fwd, SwingDir.Up, SwingDir.Down })
+                Assert.AreEqual(Angle(dir, 0), Angle(dir, 0.43), 1e-12, $"{dir}: leaning does not tilt the cut");
+            Assert.AreNotEqual(Angle(SwingDir.Draw, 0), Angle(SwingDir.Draw, 0.43), "the draw keeps the body's frame, as it was");
         }
 
         [Test]

@@ -12,7 +12,7 @@ namespace Kaname.EditorTools
 {
     // Renders the sword at work with no Play mode and no real clock: the real simulation (the sword, the dummies, hit-stop, the pogo) is run with scripted
     // presses for a fixed number of 60 Hz steps, then the frame is drawn with the ink canvas and photographed through the game's own material.
-    // Menu: Kaname > Render the strike sheet.   unity command eval --code 'Kaname.EditorTools.StrikeSheet.Render("/some/folder");'
+    // Menu: Kaname > Render the strike sheet (or ... with hitboxes).   unity command eval --code 'Kaname.EditorTools.StrikeSheet.Render("/some/folder");'
     public static class StrikeSheet
     {
         sealed class Shot
@@ -37,7 +37,11 @@ namespace Kaname.EditorTools
         [MenuItem("Kaname/Render the strike sheet")]
         public static void Run() => Render(Path.GetFullPath(Path.Combine(Application.dataPath, "..", "Logs", "strike-sheet")));
 
-        public static string Render(string folder)
+        [MenuItem("Kaname/Render the strike sheet with hitboxes")]
+        public static void RunWithBoxes() => Render(Path.GetFullPath(Path.Combine(Application.dataPath, "..", "Logs", "strike-sheet-boxes")), true);
+
+        // `boxes`: also outline the live sword box and the dummies' boxes in pale blue (the developer's debug view; the picture a cut is judged against)
+        public static string Render(string folder, bool boxes = false)
         {
             Directory.CreateDirectory(folder);
             foreach (var f in Directory.GetFiles(folder, "*.png")) File.Delete(f);
@@ -66,6 +70,11 @@ namespace Kaname.EditorTools
                 canvas.FillStyle(Rgba.Hex("#f2f4f8")); canvas.FillRect(h.Cx - 150, 0, 300, 60); canvas.FillStyle(Rgba.Hex("#2b3350")); canvas.FillRect(h.Cx - 150, -1, 300, 2);
                 foreach (var d in w.Dummies) DummyArt.Draw(canvas, d);
                 KanameArt.DrawKaname(canvas, look, w.T, h.Cx, h.Y, 1);
+                if (boxes)
+                {
+                    foreach (var d in w.Dummies) Brush.BoxOutline(canvas, d.Box(), 0.4);
+                    var blow = h.Blow(); if (blow != null) Brush.BoxOutline(canvas, blow.Box, 0.9);
+                }
                 string file = $"{n:00}-{System.Text.RegularExpressions.Regex.Replace(shot.Name, "[^A-Za-z0-9]+", "-").Trim('-')}.png";
                 File.WriteAllBytes(Path.Combine(folder, file), PoseSheet.Photograph(material, canvas, h.Cx + 30, Math.Min(-35, h.Y - 25), 200, 130));
                 manifest.Add($"{file}\t{shot.Name}");

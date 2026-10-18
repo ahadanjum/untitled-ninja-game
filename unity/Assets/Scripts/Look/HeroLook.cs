@@ -11,7 +11,7 @@ namespace Kaname.Look
     {
         public SwingDir Dir;
         public bool Alt;
-        public double T, Live1, Total;                      // time into the swing, when the blade stops being live, when the swing ends
+        public double T, Live0, Live1, Total;               // time into the swing, when the blade goes live, when it stops being live, when the swing ends
         public bool Swinging => T < Live1 - 1e-6;
     }
 
@@ -36,7 +36,7 @@ namespace Kaname.Look
         public double Run, Air, Rise, Lean, Sq, Sqv, Dash, Sprint, Atk, Charge;
     }
 
-    public sealed class SwingState { public SwingDir Dir = SwingDir.Fwd; public bool Alt; public double P, Fade = 1; }
+    public sealed class SwingState { public SwingDir Dir = SwingDir.Fwd; public bool Alt; public double P, Fade = 1, T, Live0, Live1, Total; }       // (T and the swing's times: the cuts' four phases read them)
     public sealed class TrailSample { public double X, Life, Max, K; }
     public sealed class ScarfPoint { public double X, Y, Ox, Oy; }
 
@@ -127,7 +127,7 @@ namespace Kaname.Look
             v.Dash = Mathx.Approach(v.Dash, dashing ? 1 : 0, dt * 30);                                  // the quick one: about two frames
             if (a != null)                                                                                // the blade's progress along its arc
             {
-                sw.Dir = a.Dir; sw.Alt = a.Alt;
+                sw.Dir = a.Dir; sw.Alt = a.Alt; sw.T = a.T; sw.Live0 = a.Live0; sw.Live1 = a.Live1; sw.Total = a.Total;
                 sw.P = Mathx.Clamp(a.T / (a.Dir == SwingDir.Draw ? k.DrawTime : 0.19), 0, 1);
                 sw.Fade = Mathx.Clamp((a.T - a.Live1) / (a.Total - a.Live1), 0, 1);
             }
@@ -188,28 +188,57 @@ namespace Kaname.Look
             }
         }
 
-        // ---- the arcs a strike cuts (js/art_hero.js SWINGS) ----
-        // The blade turns from angle a0 to a1 about his hand, which goes to the pivot (px, py) in his own frame (facing +x, y down, the feet at
-        // the origin; angle 0 = straight ahead, positive = down), and R is how far its tip is from the pivot.
+        // ---- the arcs a strike cuts (js/art_hero.js SWINGS; the forward, up and down cuts are redrawn in Unity to match their hitboxes: D123) ----
+        // The blade turns about his hand, which goes to the pivot (px, py) in his own frame (facing +x, y down, the feet at the origin; angle 0 = straight
+        // ahead, positive = down), and R is how far its tip is from the pivot. A forward, up or down cut has five angles, in the world's frame (the lean is
+        // taken off when it is placed): C where the blade is cocked at the press, N where the cut enters the box (the trail starts here), I where the blade is
+        // on the first step the box is live (mid-box: the picture a hit freezes, since a blow lands on that step), O where the sweep is done, and E where the
+        // follow-through ends. The damaging part is N to O, drawn over the box the blow really covers. The draw and the guard keep the two-angle arc (A0 to
+        // A1) and the old easing: for them C = N = I = A0 and O = E = A1.
         public const double BladeLen = 40;
-        public readonly struct Arc { public readonly double Px, Py, A0, A1, R; public Arc(double px, double py, double a0, double a1, double r) { Px = px; Py = py; A0 = a0; A1 = a1; R = r; } }
-        public static Arc Swings(SwingDir d)
+        public const double SweepTime = 0.08;                          // how long the blade takes from I to O, from the moment the box goes live (a look constant, not a tuning number)
+        public readonly struct Arc
+        {
+            public readonly double Px, Py, C, N, I, O, E, R;
+            public Arc(double px, double py, double c, double n, double i, double o, double e, double r) { Px = px; Py = py; C = c; N = n; I = i; O = o; E = e; R = r; }
+            public Arc(double px, double py, double a0, double a1, double r) : this(px, py, a0, a0, a0, a1, a1, r) { }
+            public double A0 => I; public double A1 => O;
+        }
+        public static Arc Swings(SwingDir d, bool alt = false)
         {
             switch (d)
             {
-                case SwingDir.Fwd: return new Arc(11, -15, -1.15, 1.15, 45);       // across the front, from above the head to the knee
-                case SwingDir.Up: return new Arc(14, -22, -2.5, -0.64, 45);        // from behind and above, over his head, to the front
-                case SwingDir.Down: return new Arc(12, -10, 0.64, 2.5, 45);        // from the front, down and under, to behind
+                case SwingDir.Fwd: return alt ? new Arc(11, -15, 0.09, 0.09, -0.30, -0.76, -1.05, 45)       // low to high: from the knee, up across the front, to above the head
+                                              : new Arc(11, -15, -1.50, -0.68, -0.22, 0.19, 0.20, 45);      // high to low: cocked over his head, across the front, to the knee
+                case SwingDir.Up: return new Arc(14, -22, -2.85, -2.60, -1.80, -1.22, -1.00, 45);           // from behind and above, over his head, to the front
+                case SwingDir.Down: return new Arc(12, -10, 0.80, 1.20, 1.75, 2.45, 2.60, 45);              // from the front, down and under, to behind
                 case SwingDir.Draw: return new Arc(14, -15, -0.5, 0.2, 45);        // the draw: one long, flat cut across the front as he lunges
                 default: return new Arc(14, -18, -1.1, -1.1, 45);                  // the parry: the blade held up and forward, not moving
             }
         }
+        // the trail's span: from where the cut enters the box (N) to where the sweep ends (O); the draw and the guard: their two angles
         public static (double a0, double a1) SwingAngles(SwingState sw)
         {
-            var g = Swings(sw.Dir);
-            return sw.Alt && sw.Dir == SwingDir.Fwd ? (g.A1, g.A0) : (g.A0, g.A1);
+            var g = Swings(sw.Dir, sw.Alt);
+            return (g.N, g.O);
         }
-        public static double SwingEase(double p) { double u = 1 - Math.Min(1, p * 1.7); return 1 - u * u; }     // quick through the cut, settling at the end
+        public static double SwingEase(double p) { double u = 1 - Math.Min(1, p * 1.7); return 1 - u * u; }     // the draw's: quick through the cut, settling at the end
+        // a forward, up or down cut: its arc is the blade's angle in the world, so the lean is taken off when it is placed (the draw and the guard keep the body's frame)
+        public static bool Pinned(SwingDir d) => d == SwingDir.Fwd || d == SwingDir.Up || d == SwingDir.Down;
+        // Where the blade points now, before the lean is taken off. A cut runs in four phases read from the swing's own times: wind-up (the press to the box going
+        // live: it accelerates in from C to I, passing N), the sweep (I to O over SweepTime, easing out), the hold (at O until the blade stops being live), the
+        // follow-through (O to E over what is left of the swing). The draw is one eased arc over its own time.
+        public static double SwingAngle(SwingState sw)
+        {
+            var g = Swings(sw.Dir, sw.Alt);
+            if (!Pinned(sw.Dir)) return Mathx.Lerp(g.A0, g.A1, SwingEase(sw.P));
+            double t = sw.T, sweep = Math.Max(1e-9, Math.Min(SweepTime, sw.Live1 - sw.Live0)), sweepEnd = sw.Live0 + sweep;
+            if (t < sw.Live0) { double u = Mathx.Clamp(t / sw.Live0, 0, 1); return g.C + (g.I - g.C) * u * u; }
+            if (t < sweepEnd) { double u = (t - sw.Live0) / sweep; return g.I + (g.O - g.I) * (1 - (1 - u) * (1 - u)); }
+            if (t < sw.Live1) return g.O;
+            double w = Mathx.Clamp((t - sw.Live1) / Math.Max(1e-9, sw.Total - sw.Live1), 0, 1);
+            return g.O + (g.E - g.O) * (1 - (1 - w) * (1 - w));
+        }
 
         // Every number that places his body for the current pose: used by the drawing and by the speed lines (for their heights).
         public Pose Place()
@@ -230,7 +259,8 @@ namespace Kaname.Look
             double wA = v.Atk;
             if (wA > 0.001)
             {
-                var g = Swings(Swing.Dir); var (a0, a1) = SwingAngles(Swing); ang = Mathx.Lerp(a0, a1, SwingEase(Swing.P));
+                var g = Swings(Swing.Dir, Swing.Alt); ang = SwingAngle(Swing);
+                if (Pinned(Swing.Dir)) ang -= v.Lean;                                                    // the cut stays level in the world: the lean moves his hand but does not tilt the blade
                 w1x = Mathx.Lerp(w1x, g.Px, wA); w1y = Mathx.Lerp(w1y, g.Py, wA);
                 kx = Mathx.Lerp(kx, w1x - Math.Cos(ang) * 3, wA); ky = Mathx.Lerp(ky, w1y - Math.Sin(ang) * 3, wA);
             }

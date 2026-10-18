@@ -43,6 +43,34 @@ namespace Kaname.Tests
         }
 
         [Test]
+        public void AMarkIsAPointTakenThroughTheTransformItDrawsNothingAndClearForgetsIt()
+        {
+            var c = new InkCanvas(); c.Translate(10, 20); c.Scale(-2, 1); c.Rotate(Math.PI / 2);
+            c.Mark("p", 3, 0);                                                          // (3, 0) turned a quarter turn is (0, 3): mirrored and doubled still (0, 3), moved to (10, 23)
+            Assert.AreEqual(10, c.Marks["p"].X, 1e-9); Assert.AreEqual(23, c.Marks["p"].Y, 1e-9);
+            Assert.AreEqual(0, c.Verts.Count); Assert.AreEqual(0, c.Indices.Count, "a mark draws nothing");
+            c.Mark("p", 0, 0); Assert.AreEqual(1, c.Marks.Count, "a name is kept once");
+            c.Clear(); Assert.AreEqual(0, c.Marks.Count, "Clear forgets the marks");
+        }
+
+        [Test]
+        public void MarksDoNotChangeWhatIsDrawn()
+        {
+            InkCanvas Draw(bool marks)
+            {
+                var c = new InkCanvas(); c.Translate(4, 5); c.Rotate(0.3); c.FillStyle(Rgba.Hex("#5b3cae"));
+                if (marks) c.Mark("a", 1, 1);
+                c.BeginPath(); c.Arc(0, 0, 6, 0, 7); c.Fill(); if (marks) c.Mark("b", 2, 2);
+                c.LineWidth = 2; c.StrokeStyle(Rgba.Hex("#7fa8e8")); c.BeginPath(); c.MoveTo(0, 0); c.LineTo(9, 3); c.Stroke();
+                return c;
+            }
+            var with = Draw(true); var without = Draw(false);
+            Assert.AreEqual(without.Verts.Count, with.Verts.Count); Assert.AreEqual(without.Indices.Count, with.Indices.Count);
+            for (int i = 0; i < without.Verts.Count; i++) { Assert.AreEqual(without.Verts[i].X, with.Verts[i].X, 0); Assert.AreEqual(without.Verts[i].Y, with.Verts[i].Y, 0); Assert.AreEqual(without.Colors[i].A, with.Colors[i].A, 0); }
+            CollectionAssert.AreEqual(without.Indices, with.Indices);
+        }
+
+        [Test]
         public void ACircleHasTheAreaOfACircle()
         {
             var c = new InkCanvas(); c.BeginPath(); c.Arc(5, 5, 12.4, 0, 7); c.FillStyle(Rgba.Hex("#0b1236")); c.Fill();

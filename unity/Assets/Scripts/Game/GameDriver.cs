@@ -76,8 +76,8 @@ namespace Kaname.Game
             double camX = Mathx.Lerp(w.CamPrev, w.Cam.X, a);
             double unitsPerPixel = viewCamera != null ? CameraRig.UnitsPerPixel(viewCamera, w.View) : 1 / w.View.Zoom;
             stage.Update(w.View, camX, unitsPerPixel);
-            dummies.Draw(w.Dummies);
-            hero.Draw(w.Hero, a, w.T);
+            dummies.Draw(w.Dummies, w.View.Debug);
+            hero.Draw(w.Hero, a, w.T, w.View.Debug);
             if (viewCamera != null) CameraRig.Apply(viewCamera, w.View, camX, stage.Backdrop(w.View.Night));
         }
 

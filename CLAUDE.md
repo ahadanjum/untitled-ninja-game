@@ -8,15 +8,26 @@ PlayStation controller** on a Mac.
 **Phase 0, foundations, with the feel ladder under way (D078).** The design is mostly locked (`design/DECISIONS.md` is the state of
 play: **read it first, every session**). The only code that exists is the character test environment: a blank white stage and
 Kaname, built one tested rung at a time. **Rungs 0–7 are built** (the stage, Kaname in the Little Shinobi style, run, jump, dash and sprint, the sword, the pogo, the charge and draw, health and the parry). The
-designer approved the run, the jump (D088), the dash and sprint (D099), the sword (D104), the pogo (D106) and the draw (D108); **health, the parry and the red and yellow language (D109) were tried and rebuilt after their verdict (D110: Little Shinobi's parry, a glint instead of circles, a plain parry only a deflect); the rebuild is built and tested but not yet tried by their hands, and these are still proposals: the core play is the designer's call (D081).** Rung 8 (the blade's charge, the seals and the scar) waits for their go. Nothing beyond the
+designer approved the run, the jump (D088), the dash and sprint (D099), the sword (D104), the pogo (D106) and the draw (D108); **health, the parry and the red and yellow language (D109) were tried and rebuilt after their verdict (D110: Little Shinobi's parry, a glint instead of circles, a plain parry only a deflect); the designer said the rebuilt parry felt good (D112), but these are still proposals: the core play is the designer's call (D081).** Rung 8 (the blade's charge, the seals and the scar) waits for their go. Nothing beyond the
 ladder is coded: no rooms, no world, no real enemies. Then `design/feel.md`, `hero.md`, `story.md`, `world-sketch.md`,
 `core-play-ideas.md` (options; the designer decides), and `docs/PROCESS.md` for the phases and the ladder.
 
-**Unity (D112): the real game is being built in Unity 6.3 LTS (free Personal tier) in `unity/`; the plan and the state are in `docs/UNITY-PORT.md`. This JavaScript game is the executable spec until the port matches it: `dev/trace.mjs` records its behaviour into `traces/`, and the C# must replay it to 0.001 u (`unity test unity --mode EditMode`).** Rungs U0 (the body, D116), U1 (Kaname's look, moved first at the designer's word, D118), U2 (run and jump) and U3 (dash and sprint) are signed off; U4 (the sword, the pogo, the dummies and hit-stop) is built and waits for their hands; the mechanics U5–U6 (charge and draw, health and parry) follow, each replayed against `traces/`. In Unity press **P** to cycle his poses. The outfit is black and the band deep violet (D117). Do not download or install anything for it without the designer's yes to the specific files; Unity's terms, sign-in and licence are theirs to accept. The repository is public on GitHub (`ahadanjum/untitled-ninja-game`); plain `git push` fails here with HTTP 400, use `git -c http.postBuffer=524288000 -c http.version=HTTP/1.1 push`.
+**Unity (D112): the real game is being built in Unity 6.3 LTS (free Personal tier) in `unity/`; the plan and the state are in `docs/UNITY-PORT.md`. This JavaScript game is the reference for gameplay behaviour and simulation parity (D124): `dev/trace.mjs` records its behaviour into `traces/`, and the C# must replay it to 0.001 u (`unity test unity --mode EditMode`). Unity owns the look from now on; every intentional rendering difference from `js/art_hero.js` is listed in `docs/UNITY-PORT.md`.** Rungs U0 (the body, D116), U1 (Kaname's look, moved first at the designer's word, D118), U2 (run and jump) and U3 (dash and sprint) are signed off. U4 (the sword, the pogo, the dummies and hit-stop) is built; **before its sign-off comes the U4 polish milestone (D125, the package's IMPLEMENTATION_001): seven look-only tasks on the sword, the slash and the pogo, each from a brief in `docs/briefs/`, implemented by Sonnet once the designer authorizes that brief.** The mechanics U5–U6 (charge and draw, health and parry) follow, each replayed against `traces/`. In Unity press **P** to cycle his poses. The outfit is black and the band deep violet (D117). Do not download or install anything for it without the designer's yes to the specific files; Unity's terms, sign-in and licence are theirs to accept. The repository is public on GitHub (`ahadanjum/untitled-ninja-game`); plain `git push` fails here with HTTP 400, use `git -c http.postBuffer=524288000 -c http.version=HTTP/1.1 push`.
+
+## The designer's documentation package (D119)
+`docs/Kaname_Documentation/` holds it as delivered: the **Game Design Bible** (`Docs/GAME_DESIGN_BIBLE.md`, the updated narrative
+direction), **`Docs/COMBAT_ANIMATION.md`** (the current milestone's art direction), **`Docs/briefs/IMPLEMENTATION_001.md`** (its scope and
+acceptance), `Docs/WORLD_MAP.md` (topology, for later), `Docs/DECISIONS_AND_OPEN_ITEMS.md`, `Docs/references/` (concept art is mood, not a
+spec; `kaname_current_attacks.png` is our own Unity strike sheet) and the source script. **Order of authority:** `design/DECISIONS.md`
+first (the state of play), then the brief for the task in hand, then COMBAT_ANIMATION, then the Bible, then WORLD_MAP. The package does
+**not** override what is built and tested; its "Locked" labels count only once they are logged as D-numbers, and its conflicts with this
+repo are listed in DECISIONS.md (C01–C22). The package was written from an older snapshot (a blue outfit, bare arms, no draw or parry).
+Its own `CLAUDE.md` is source material: its rules are merged into this file, and where they differ this file and DECISIONS.md win.
 
 ## Rules for this repo
 1. **Code only on the feel ladder (D078).** Ask before starting each rung and wait for the designer's sign-off on the last. No
-   rooms, no world, no enemies beyond a test dummy, no design-checker scripts, until the designer says so.
+   rooms, no world, no enemies beyond a test dummy, no design-checker scripts, until the designer says so. The current work is the U4
+   polish milestone (D125): a task starts only when the designer authorizes its brief.
 2. **The Purpose Rule.** Every room, path, door, shortcut, wall, secret, pickup and enemy placement has a written reason (what it
    teaches / tests / rewards / connects / tells / rests, and what it joins and costs). No reason, no element.
 3. **Ask, don't guess, on taste.** When a choice is about what the game *is* (tone, a character, a boss's identity, what is
@@ -27,7 +38,9 @@ ladder is coded: no rooms, no world, no real enemies. Then `design/feel.md`, `he
    text, press X) are wanted (D017).
 5. **Telegraph by colour, shape and sound.** Red = dodge or jump; yellow = parry (D010). Never draw hitboxes or ranges; no markers
    over an enemy's head that count something. **Nothing else uses red or yellow, and nothing on Kaname is red or yellow** (a test
-   checks); the blade's glow is violet-black (D037).
+   checks); the blade's glow is violet-black (D037), and the blade is becoming dark steel with a restrained violet edge (D122). The package's
+   crimson (permanent growth) and gold (freed souls) collide with this rule: recorded as C10, not resolved, so nothing new is red or
+   yellow until the designer decides.
 6. **Bosses follow Hollow Knight, Silksong and the Souls games** (D018); Castlevania/Hollow Knight-style play, a parry is a big
    opening (D083). Notes: `design/references/boss-design-philosophy.md`.
 7. **The world is physically honest and branches** (D008, D011). A door leads to the room physically next to it; nothing
@@ -35,6 +48,19 @@ ladder is coded: no rooms, no world, no real enemies. Then `design/feel.md`, `he
 8. **Words in docs matter.** Describe intent in the designer's terms. They dictate by voice, so terms can arrive garbled: state
    your reading and log it (`design/feel.md` has a glossary).
 9. **The story is fair.** Foreshadowing is planned in a clue ledger (`design/story.md`).
+10. **Protect what works** (the package's rules, D124). Never rewrite or break the working jump, sprint, dash and air dash, the attacks,
+    the down strike and pogo, or the input mappings. During visual polish, jump, sprint, dash, the pogo's physics, attack startup and
+    hit-stop are frozen, and every test and the 73 recorded traces must stay valid. Visual changes are made apart from hitboxes and timing;
+    the katana stays recognizable, with a sharp inner damage crescent and a softer outer violet afterimage (D122, D123). Keep work small,
+    reversible and testable: no sweeping refactors, no systems nobody asked for. Never call it done because it compiles: say what was
+    built, which tests ran, and what needs the designer's hands in the Editor, and never claim an Editor playtest that did not happen.
+    Never make an open design choice canonical; ask when one blocks the work.
+11. **Controls (D126).** The current bindings stay until the systems that need new buttons are built. The target layout then: L1 parry;
+    R2 tap dash (air dash allowed) and hold sprint; □ sword; ✕ jump (double jump later); ○ tap a spell, hold to heal; △ **hold** to
+    absorb, bind or cleanse (one contextual input, binding only where the game offers it). Add or remap an input only inside an authorized
+    milestone; note the unbuilt ones rather than building them.
+12. **Models (D120).** Claude Opus plans, inspects and reviews; Claude Sonnet implements an approved brief. Recommend only Opus or Sonnet,
+    never Fable.
 
 ## Run, test, and look
 ```
@@ -45,6 +71,8 @@ open test-results/index.html          # evidence: the screenshots and the measur
 node dev/trace.mjs [--check]          # record (or check) the golden traces the Unity port is proved against, into traces/
 unity test unity --mode EditMode --output /tmp/r.xml    # the Unity tests (Editor closed; needs the Unity CLI)
 ```
+In the Unity Editor: **Kaname > Render the strike sheet** (the eight sword shots, one picture each, into `unity/Logs/strike-sheet/`; **... with hitboxes** adds the
+blade's and the dummies' boxes as pale-blue outlines, into `unity/Logs/strike-sheet-boxes/`) and **Render the pose sheet** (into `unity/Logs/pose-sheet/`): deterministic pictures for before-and-after comparisons.
 Needs Node 22+ and Google Chrome (`CHROME_PATH` to override). Zero dependencies: `dev/run.mjs` drives headless Chrome over the DevTools
 protocol, serves the folder itself, gives every test a fresh page with a seeded `Math.random` and no real gamepad, so results are
 deterministic and order-independent. You can also just double-click `index.html`.
@@ -57,7 +85,8 @@ deterministic and order-independent. You can also just double-click `index.html`
 Shinobi) · `js/stage.js` the test stage (ground, four pillars of 1–4 tiles, a ledge) · `js/hero.js` Kaname's physics, eased pose,
 scarf · `js/art_hero.js` how he is drawn (one function) · `js/dummy.js` the test dummies for the sword and the pogo (two posts and a stair of three hanging ones) · `js/striker.js` the test attacker for the parry · `js/game.js` the loop, camera, stage and HUD drawing · `dev/harness.js`
 test driver · `dev/tests.js` the acceptance tests · `dev/run.mjs` the runner (ported from Little Shinobi) · `design/concepts/` the
-drawn looks (the chosen one is **C**; round 1 is archived).
+drawn looks (the chosen one is **C**; round 1 is archived) · `unity/` the Unity project (its layout is in `docs/UNITY-PORT.md`) ·
+`docs/Kaname_Documentation/` the designer's documentation package (D119) · `docs/briefs/` one brief per authorized task.
 
 ## The numbers are the design (as the code has them; `dev/tests.js` checks these)
 World units (u) are Little Shinobi's pixels: one tile is 32 u, Kaname's body is 16 × 34 u. **Run 240 u/s**; ground accel 3000 (0 to top
@@ -66,7 +95,7 @@ rises about 118 u (3.7 tiles: it clears 3 tiles, not 4), a tap about 47 u** (jum
 0.12 s**; fall speed capped at 900 u/s. The stick has a dead zone of 0.18 and is at full speed by 0.95. The camera is a critically damped
 spring (0.16 s) leading him by 36 u. The headband's tail is 7 links of 2.4 u, 17 u in all (D093, D094).
 **Dash (tap): 640 u/s for 0.2 s = 128 u, flat; cooldown 0.45 s; a press 0.1 s early is kept; in the air one per jump, refilled on landing; ends at 210 u/s; a wall or a jump ends it. Sprint (hold dash + a direction): top speed 336 u/s (1.4 × run) on the ground and in the air (D096).**
-**Sword (D100, all numbers proposals): the blade is live 0.03–0.14 s after the press, the swing ends at 0.2 s, cooldown 0.3 s, a press 0.12 s early is kept. Forward reach 46 u past his body; up is 60 × 52 u above him; down is 52 × 48 u below him (in the air only). No turning, dashing or second swing while the blade is live; a dash or a jump may cut the recovery. A landed blow stops the world for 4 steps (0.066 s). One blow per swing per target.**
+**Sword (D100, all numbers proposals): the blade is live 0.03–0.14 s after the press, the swing ends at 0.2 s, cooldown 0.3 s, a press 0.12 s early is kept. Forward reach 46 u past his body, from the knee to the head (38 u tall); up is a 60 × 40 box from 30 to 70 u above his feet; down is a 52 × 40 box from 6 u above his feet to 34 u below them (in the air only). No turning, dashing or second swing while the blade is live; a dash or a jump may cut the recovery. A landed blow stops the world for 4 steps (0.066 s). One blow per swing per target.**
 **Health and the parry (D109, revised by D110; proposals): a bar of 5; a plain or yellow hit takes 1, a red 2; being hit throws him back, stuns him 0.22 s and leaves him untouchable 1 s; at 0 he is down 1.4 s then up with full health. The parry is Little Shinobi's: he can press at any moment (no lockout); the first press opens a 0.26 s window, each further press within 0.5 s of the last a shorter one (0.16, 0.09, 0.05 s); a pause or a clean parry resets it. The guard covers both sides, he turns to the attacker, a press made in a hit-stop is kept, and a parry cancels his own swing (not a lunge); with the guard up he moves at 30 %. A failed parry (early, late, or on red) means the hit lands. The attacker's blade arrives 0.04 s into its cut. Plain: any answer; a parry only turns it aside for 0.22 s (no big opening, no zoom). Yellow (a yellow glint): a parry leaves it wide open 1.6 s, with the big-hit zoom, and a blow then lands hard (0.14 s pause). Red (a red glint, a low sweep, cannot be parried): jump it or dash through it. A dash is untouchable throughout; a clean parry leaves him untouchable 0.35 s and refills the air dash. The striker (far left of the start) winds up 0.42 / 0.62 / 0.70 s for plain / yellow / red and attacks in the order plain, yellow, red, yellow, plain, red when he is within 150 u.**
 **Charge and draw (D107): keep holding the strike button after the press and a charge builds from 0.25 s, ready at 0.62 s; let go and he lunges 820 u/s for 0.16 s (about 130 u), flat, a heavy blow (hit-stop 0.1 s) to everything it passes, once each. Early release does nothing; charging walks at 40 % speed; a dash breaks the charge, a jump does not; it works in the air; the lunge is committed and ends crisply.**
 **Pogo and reset (D105): a down strike that lands bounces him up at 560 u/s (about 71 u, from where it hit, after the hit-stop); any blow landed in the air refills the air dash; once a blow has landed he may dash or turn at once (it cancels the rest of the swing), but not while the blade is still looking for its mark.** (The first game's jump of 720 measured 112 u in this integrator, so it was raised to 740.)
@@ -75,9 +104,10 @@ Retune on purpose only, and change the test in the same change.
 ## How Kaname is drawn (the designer's notes)
 Little Shinobi's ink silhouette: a round dark hood (black, D117) with a **deep-violet headband (D091, darkened in D117) wrapped round the head just above the eyes, and the scarf is that
 band's tail** (exactly as in Little Shinobi: one piece of cloth), glowing white eyes, a thin pale-blue rim, a purple sash, a plain katana at the
-hip (**no white tags or wrapping**), **no arms** (D103: as in Little Shinobi, the sword simply appears in his hand), a violet glow on the sword's hilt standing in for the curse. **No tail on the hood and no
+hip (**no white tags or wrapping**), **no arms** (D103, reaffirmed by D121: as in Little Shinobi, the sword simply appears in his hand; a small detached cursed hand gripping it is proposed, P42, to be compared side by side first), a violet glow on the sword's hilt standing in for the curse. **No tail on the hood and no
 smoke** (the designer disliked both). The dark violet essence is to show in the sword's swing (rung 4 onward).
 **The look is A (D091, D095): the band and tail are purple; the band-only and knight looks are retired.**
+**Changing in Unity (D122, D123, D125):** *built and approved by the designer (task 1, revision 1):* the arcs are redrawn so the visible damaging part of each forward, up and down cut matches its live hitbox and the blade is at the target on the frame a hit freezes, with the timing unchanged (five angles per cut read from the swing's own times, pinned to the world and not to the lean; the trail runs from where the cut enters the box and is drawn about the swing's pivot; the values are in `docs/UNITY-PORT.md`, *Rendering differences*; a developer-only box outline shows on the ` key). *Still to come:* the blade becomes a dark-steel katana with a subtle curve, a distinct cutting edge and restrained violet energy (few wisps, a small glow); the slash gets a sharp inner crescent over the real damage and a soft violet afterimage; the rest of the milestone (D125). The JavaScript drawing described next stays as it is (D124).
 **The sword (D100–D103), drawn as Little Shinobi draws its cut:** there are no arms; the hand's place is a point at his side that moves to each swing's pivot (`SWINGS` in `js/art_hero.js`), and a curved katana turns about it (`drawBlade`: a wrapped grip, a guard, a violet-black blade with a spine, a band of pale violet fire along the cutting edge, wisps of violet fire streaming back off it, and a soft aura along the whole blade, strongest at the tip). The trail (`drawCrescent`) is the sweep of the blade's outer part: a smooth crescent hair-thin where the blade began and widest at its tip, whose outer edge is the tip's path, so it hangs off the blade and never runs ahead of it; it thins and fades as the cut ends. Forward cuts alternate direction; the up cut passes over his head from behind to the front; the down cut passes under him. He leans into the cut. The dummy (`js/dummy.js`) is a dark post with a crossbar, a round straw head and rope bands in his ink style; it flashes white-blue when struck, flinches away from the blow and springs back.
 **The red and yellow language and the parry (D109, D110):** the striker is Kaname's silhouette recoloured and bare-headed, with a wooden blade. **The telegraph is one glint, as in Ghost of Tsushima: a four-point sparkle at the tip of its blade (`drawGlint` in `js/striker.js`), yellow for a parry or red for jump or dash, flashing from 0.32 s before the cut (0.24 s long); plain attacks have none. Its blade and eyes are never lit, and there are no circles, rings or markers anywhere** (a test draws the parry flash and a glint and counts arcs: none). The parry's flash at the clash is a hard four-point glint and a burst of sparks. Kaname's guard is the blade held up in front with a small pale glint at its tip while the window is open. A parried striker is turned aside (the blade knocked up) or, if it was yellow, crouched and bowed toward him; it never leans away. Untouchable after a hit, he blinks. The health bar is five pale segments at the top of the screen.
 **The charge and the draw (D107):** charging, the hilt's glow swells (`v.charge`), six violet motes spiral into it, he crouches 1.6 u and leans back 0.1 rad, and at full charge a ring pulses out from the hilt; the draw reuses the dash's long, low stretch and speed lines and the sword's blade and crescent with its own, flatter arc (`SWINGS.draw`) and a wider trail.
@@ -110,7 +140,9 @@ the last two steps are blended (measured; `?interp=1|0` forces it), on a 60 Hz d
 
 ## Not decided yet: do not assume
 How the world's art is made beyond the hero (the Belmont's Curse look was set aside for now) · a music piece per area and boss · the
-game's name (the hero is Kaname) · the world's regions and layout · the core play beyond movement (tools, rope, parry, rest, death).
+game's name (the hero is Kaname; the package calls the game "Kaname"; a shortlist of proposals is in DECISIONS.md's log) · the world's
+regions and layout · the core play beyond movement (tools, rope, parry, rest, death; the package's Essence, Crimson, spells and binding
+are direction, not decisions: C10–C13) · the colour of permanent growth and of freed souls (C10).
 
 ## Reference projects (read-only)
 `../hollow-shinobi/`, `../hollow-shinobi-ninja-backup/`, `../console-player/` are separate. Read them freely; never edit them from here.

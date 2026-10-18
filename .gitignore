@@ -1,6 +1,9 @@
 # macOS
 .DS_Store
 
+# the documentation package's original zip (its unpacked files in docs/Kaname_Documentation/ are kept and tracked)
+docs/Kaname_Documentation_Package.zip
+
 # Node, tests and tooling (the JavaScript prototype's test runner writes here)
 node_modules/
 test-results/
