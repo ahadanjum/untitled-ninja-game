@@ -30,6 +30,9 @@ namespace Kaname.Game
         {
             li.Cx = h.Cx; li.Y = h.Y; li.Vx = h.Vx; li.Vy = h.Vy; li.LandVy = h.LandVy;
             li.Face = h.Face; li.OnGround = h.OnGround;
+            // Everything else is told afresh every step, so nothing can be left over from the step before (the pose reel once left "down" switched on
+            // after it was turned off). The body has none of these yet: they come from it as the mechanics arrive (dash U3, sword U4, charge U5, parry and health U6).
+            li.DashT = 0; li.TrailActive = false; li.Atk = null; li.Charge = 0; li.ParryT = 0; li.Invuln = 0; li.DeadT = 0;
         }
 
         public void Advance(double dt) => Look.Update(input, dt);

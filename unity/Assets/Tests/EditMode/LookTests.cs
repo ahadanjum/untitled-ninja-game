@@ -186,6 +186,41 @@ namespace Kaname.Tests
             Assert.AreEqual(r.Look.Head(0, 0).Hy, r.Look.Place().Hy, 1e-12);
         }
 
+        // the pipeline of the running game, one step: the reel drives him, the simulation steps, the look is told, the look steps
+        static void GameStep(World w, HeroLook look, PoseReel reel, LookInput li, IControls controls, bool jumpKick = true)
+        {
+            reel.BeforeStep(w, look, Mathx.Step);
+            w.Step(Mathx.Step, controls);
+            if (jumpKick && w.Hero.JustJumped) look.Kick(-0.28);
+            HeroView.Fill(li, w.Hero);
+            reel.Tell(li);
+            look.Update(li, Mathx.Step);
+        }
+
+        [Test]
+        public void TurningThePoseReelOffLeavesNothingBehind()
+        {
+            var t = new Tuning(); var w = new World(t); var look = new HeroLook(t); var reel = new PoseReel(); var li = new LookInput();
+            // cycle through every pose, long enough that each one is in the middle of its loop when the next key is pressed (down: lying; guard; charge...)
+            for (int pose = 0; pose < PoseReel.Names.Length - 1; pose++)
+            {
+                reel.Next(w, look);
+                for (int i = 0; i < 55; i++) GameStep(w, look, reel, li, NoControls.Instance);
+            }
+            Assert.AreEqual(PoseKind.Down, reel.Kind);
+            reel.Next(w, look);                                                       // back to off
+            Assert.AreEqual(PoseKind.Off, reel.Kind);
+            var c = new ControlState { Push = 1 }; c.SetHeld(Act.Right, true);
+            for (int i = 0; i < 90; i++) { GameStep(w, look, reel, li, c); c.EndStep(); }
+            Assert.AreEqual(0, li.DeadT); Assert.AreEqual(0, li.Invuln); Assert.AreEqual(0, li.ParryT); Assert.AreEqual(0, li.Charge); Assert.AreEqual(0, li.DashT);
+            Assert.IsNull(li.Atk); Assert.IsFalse(li.TrailActive);
+            Assert.AreEqual(1.0, look.Vis.Run, 1e-6, "he is running, on his feet");
+            Assert.That(look.Vis.Lean, Is.InRange(0.10, 0.16), "leaning into the run, not lying down");
+            Assert.AreEqual(0, look.Vis.Atk, 1e-6); Assert.AreEqual(0, look.Vis.Charge, 1e-6);
+            Assert.IsFalse(w.Hero.Scripted, "the player's controls run him again");
+            Assert.AreEqual(240, w.Hero.Vx, 0.01);
+        }
+
         [Test]
         public void TheBlinkIsRandomButSeededSoTheTestsAreSteady()
         {
