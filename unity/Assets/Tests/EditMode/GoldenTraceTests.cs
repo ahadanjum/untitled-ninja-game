@@ -10,7 +10,7 @@ namespace Kaname.Tests
     // The proof of the port: traces/*.json were recorded from the JavaScript game (dev/trace.mjs, tag js-prototype-rung7): for every
     // 60 Hz step, what the controls said and the state that came out. This replays the recorded controls through the C# simulation and requires
     // the same state, to within 0.001 u, at every step. If the traces match, the feel matches.
-    [Serializable] public class TraceSetup { public double cx, y, vx, vy, camX, coyote; public int face; public bool onGround; }
+    [Serializable] public class TraceSetup { public double cx, y, vx, vy, camX, coyote; public int face; public bool onGround, canDash; }
 
     [Serializable]
     public class Trace
@@ -28,7 +28,7 @@ namespace Kaname.Tests
     public class GoldenTraceTests
     {
         // the rungs the C# simulation has reached: add each one here when its port is done
-        static readonly HashSet<string> Ported = new HashSet<string> { "U0", "U2", "U3" };
+        static readonly HashSet<string> Ported = new HashSet<string> { "U0", "U2", "U3", "U4" };
         const double Tolerance = 0.001;
 
         static string TraceDir => Path.GetFullPath(Path.Combine(Application.dataPath, "..", "..", "traces"));
@@ -65,7 +65,7 @@ namespace Kaname.Tests
 
             var world = new World(new Tuning());
             var h = world.Hero; var s = t.setup;
-            h.Cx = h.Px = s.cx; h.Y = h.Py = s.y; h.Vx = s.vx; h.Vy = s.vy; h.Face = s.face; h.OnGround = s.onGround; h.Coyote = s.coyote;
+            h.Cx = h.Px = s.cx; h.Y = h.Py = s.y; h.Vx = s.vx; h.Vy = s.vy; h.Face = s.face; h.OnGround = s.onGround; h.Coyote = s.coyote; h.CanDash = s.canDash;
             world.Cam = new Spring { X = s.camX, V = 0 }; world.CamPrev = s.camX;
 
             var controls = new ControlState();
@@ -96,7 +96,14 @@ namespace Kaname.Tests
                 case "apex": return h.Apex; case "lastJump": return h.LastJump; case "justLanded": return h.JustLanded ? 1 : 0;
                 case "dashT": return h.DashT; case "dashCd": return h.DashCd; case "canDash": return h.CanDash ? 1 : 0; case "dashBuf": return h.DashBuf;
                 case "dashDir": return h.DashDir; case "lastDash": return h.LastDash;
-                default: throw new ArgumentException("the trace records a state the C# does not have yet: " + key);
+                case "atkT": return h.Atk != null ? h.Atk.T : -1; case "atkDir": return h.Atk != null ? (int)h.Atk.Dir : -1;
+                case "atkCd": return h.AtkCd; case "atkBuf": return h.AtkBuf; case "strikes": return h.Strikes; case "hitstop": return w.Hitstop;
+                default:
+                    if (key.Length > 2 && key[0] == 'd' && char.IsDigit(key[1]))                          // a dummy: d0hits, d3ox, ...
+                    {
+                        var d = w.Dummies[key[1] - '0']; string f = key.Substring(2);
+                        switch (f) { case "hits": return d.Hits; case "ox": return d.Ox; case "oy": return d.Oy; case "lean": return d.Lean; case "flash": return d.Flash; }
+                    } throw new ArgumentException("the trace records a state the C# does not have yet: " + key);
             }
         }
 

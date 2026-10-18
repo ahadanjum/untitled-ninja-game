@@ -126,6 +126,40 @@ namespace Kaname.Tests
             finally { InputSystem.RemoveDevice(kb); RestoreInputRouting(); }
         }
 
+        // U4, end to end: a key swings the sword in the running scene, the blow lands on the post and holds the world still for a moment
+        [UnityTest]
+        public IEnumerator TheKeyboardSwingsTheSwordAndStrikesADummyInTheRunningScene()
+        {
+            var w = driver.World; w.Reset(); w.Hero.Place(190, 0); w.Cam.X = w.CamPrev = 190;
+            var post = w.Dummies[0];
+            RouteAllInputToTheGame();
+            var kb = InputSystem.AddDevice<Keyboard>("U4 test keyboard");
+            try
+            {
+                InputSystem.QueueStateEvent(kb, new KeyboardState(Key.J));
+                yield return new WaitForSeconds(0.1f);
+                InputSystem.QueueStateEvent(kb, new KeyboardState());
+                yield return new WaitForSeconds(0.5f);
+                Assert.AreEqual(1, post.Hits, "J swings the sword and the blow lands on the post once");
+                Assert.AreEqual(1, w.Hero.Strikes);
+            }
+            finally { InputSystem.RemoveDevice(kb); RestoreInputRouting(); }
+        }
+
+        [UnityTest]
+        public IEnumerator TheDummiesAreDrawnWhereTheSimulationHasThem()
+        {
+            var w = driver.World; w.Reset(); w.Hero.Place(160, 0); w.Cam.X = w.CamPrev = 160;
+            yield return new WaitForSeconds(1.0f);
+            var cam = Camera.main;
+            var rt = new RenderTexture(W, H, 24, RenderTextureFormat.ARGB32); cam.targetTexture = rt; cam.Render();
+            RenderTexture.active = rt; var tex = new Texture2D(W, H, TextureFormat.RGB24, false); tex.ReadPixels(new Rect(0, 0, W, H), 0, 0); tex.Apply(); RenderTexture.active = null;
+            Color32 At(double x, double y) { var p = cam.WorldToScreenPoint(new Vector3(Pixel.X(x), Pixel.Y(y), 0)); return tex.GetPixel(Mathf.RoundToInt(p.x), Mathf.RoundToInt(p.y)); }
+            AssertColour("the post at x=240 (dark ink)", At(240, -10), "#1a2140");
+            AssertColour("the open stage beside it", At(215, -10), "#ffffff");
+            cam.targetTexture = null; Object.Destroy(rt); Object.Destroy(tex);
+        }
+
         [Test]
         public void TheProjectDrawsInGammaColourSpaceLikeTheJavaScriptCanvas()
         {

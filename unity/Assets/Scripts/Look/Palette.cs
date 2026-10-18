@@ -10,6 +10,7 @@ namespace Kaname.Look
         public const string BandRgb = "58,34,115";                                                     // the same colour, for the speed lines
         public const string CurseRgb = "143,77,255";
         public static readonly Rgba Hilt = Rgba.Hex("#3a2a70"), HiltLt = Rgba.Hex("#6a52b0"), Steel = Rgba.Hex("#9aa6b8"), Saya = Rgba.Hex("#241a46"), SayaLt = Rgba.Hex("#4a3a80");
+        public static readonly Rgba Rope = Rgba.Hex("#b79f78"), RopeDk = Rgba.Hex("#4a3e28");           // the dummies' rope bands
         public static readonly Rgba Ink = Rgba.Hex("#1a2140"), InkHead = Rgba.Hex("#262f52"), Wood = Rgba.Hex("#5a4a3a");   // the test dummies' ink (used from rung U4)
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Kaname.Sim
 {
@@ -19,6 +20,9 @@ namespace Kaname.Sim
         public Spring Cam;                            // the camera's x and its speed
         public double CamPrev;                        // last step's camera x, for blending between steps
         public double T;                              // seconds simulated
+        public List<Dummy> Dummies;                   // the test dummies the sword is judged against
+        public double Hitstop;                        // seconds the whole world still has to hold still after a blow landed
+        public bool Frozen;                           // the last step was a hit-stop step: nothing moved, and nothing drawn from the simulation should either
         public readonly ViewOptions View = new ViewOptions();
 
         public World(Tuning tuning)
@@ -31,6 +35,8 @@ namespace Kaname.Sim
         public void Reset()
         {
             Hero = new Hero(K, 0, 0);
+            Dummies = Dummy.MakeSet();
+            Hitstop = 0;
             Cam = default;
             CamPrev = 0;
         }
@@ -40,9 +46,25 @@ namespace Kaname.Sim
         {
             DevKeys(controls);
             CamPrev = Cam.X;
+            Frozen = false;
+            if (Hitstop > 0) { Hitstop = Math.Max(0, Hitstop - dt); Hero.Freeze(controls); Frozen = true; return; }      // hit-stop: everything holds still for a moment
             Hero.Update(dt, controls);
+            Strikes();
+            foreach (var d in Dummies) d.Update(dt);
             Cam.SmoothDamp(Hero.Cx + Hero.Face * K.CameraLead, K.CameraSmooth, dt);
             T += dt;
+        }
+
+        // the sword: whatever the live blade overlaps is struck, once per swing, the world pauses for a moment, and the hero is told (pogo, dash reset)
+        void Strikes()
+        {
+            var b = Hero.Blow(); if (b == null) return;
+            foreach (var d in Dummies)
+            {
+                if (b.Hit.Contains(d) || !b.Box.Overlaps(d.Box())) continue;
+                b.Hit.Add(d); d.Hit(b.Dir, b.Face, b.Power); Hero.OnStrike(b.Dir);
+                Hitstop = b.Power > 1 ? K.HitstopDraw : K.Hitstop;                                    // (a blow on an opened enemy pauses longer, with the big-hit zoom: U6)
+            }
         }
 
         void DevKeys(IControls c)

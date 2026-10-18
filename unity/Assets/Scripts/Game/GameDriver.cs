@@ -21,6 +21,7 @@ namespace Kaname.Game
         InputReader input;
         StageView stage;
         HeroView hero;
+        DummyView dummies;
         DebugHud hud;
         PoseReel reel;
 
@@ -30,6 +31,7 @@ namespace Kaname.Game
             clock = new FixedClock();
             input = new InputReader();
             stage = new StageView(transform);
+            dummies = new DummyView(transform, inkMaterial);
             hero = new HeroView(transform, World.K, inkMaterial);
             reel = new PoseReel();
             hud = new DebugHud();
@@ -42,6 +44,7 @@ namespace Kaname.Game
             input?.Dispose(); input = null;
             stage?.Destroy(); stage = null;
             hero?.Destroy(); hero = null;
+            dummies?.Destroy(); dummies = null;
         }
 
         void Update()
@@ -57,8 +60,10 @@ namespace Kaname.Game
             if (input.State.DevHit(Dev.Pose)) reel.Next(World, hero.Look);
             reel.BeforeStep(World, hero.Look, dt);
             World.Step(dt, input.State);
+            if (World.Frozen) return;                                         // hit-stop: the world holds still, and so does his look (its pose, its scarf, its clocks)
             if (World.Hero.JustJumped) hero.Look.Kick(-0.28);                 // a stretch as he leaves the ground
             if (World.Hero.JustDashed) hero.Look.Kick(-0.12);                 // a small stretch as a dash leaves
+            if (World.Hero.JustPogoed) hero.Look.Kick(-0.25);                 // a stretch as a down blow bounces him
             hero.Fill(World.Hero);
             reel.Tell(hero.Input);
             hero.Advance(dt);
@@ -71,6 +76,7 @@ namespace Kaname.Game
             double camX = Mathx.Lerp(w.CamPrev, w.Cam.X, a);
             double unitsPerPixel = viewCamera != null ? CameraRig.UnitsPerPixel(viewCamera, w.View) : 1 / w.View.Zoom;
             stage.Update(w.View, camX, unitsPerPixel);
+            dummies.Draw(w.Dummies);
             hero.Draw(w.Hero, a, w.T);
             if (viewCamera != null) CameraRig.Apply(viewCamera, w.View, camX, stage.Backdrop(w.View.Night));
         }

@@ -134,6 +134,19 @@ namespace Kaname.Ink
             MoveTo(x, y); LineTo(x + w, y); LineTo(x + w, y + h); LineTo(x, y + h); ClosePath();
         }
 
+        // a rectangle with rounded corners of radius r (the HTML canvas roundRect)
+        public void RoundRect(double x, double y, double w, double h, double r)
+        {
+            const double Q = Math.PI / 2;
+            r = Math.Min(r, Math.Min(w, h) / 2);
+            MoveTo(x + r, y);
+            Arc(x + w - r, y + r, r, -Q, 0);
+            Arc(x + w - r, y + h - r, r, 0, Q);
+            Arc(x + r, y + h - r, r, Q, 2 * Q);
+            Arc(x + r, y + r, r, 2 * Q, 3 * Q);
+            ClosePath();
+        }
+
         public void QuadraticCurveTo(double cx, double cy, double x, double y)
         {
             var cur = Current; if (cur == null) { MoveTo(cx, cy); cur = Current; }

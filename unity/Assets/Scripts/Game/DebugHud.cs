@@ -34,7 +34,7 @@ namespace Kaname.Game
                 style.normal.textColor = v.Night ? Ink("#7f8ac0") : Ink("#9aa2b6");
                 var wrap = new GUIStyle(style) { wordWrap = true, alignment = TextAnchor.LowerLeft };
                 GUI.Label(new Rect(18 * k, Screen.height - 72 * k, Screen.width - 36 * k, 60 * k),
-                    $"Kaname's look. P next pose (now: {reel.Name})   G grid   N night   [ ] zoom   R reset   T toss him up   H hide this   ` numbers. Arrows or stick run, Space or the cross jumps, Shift or the circle dashes (hold it and a direction to sprint). The sword, charge and parry do not work yet.", wrap);
+                    $"Kaname's look. P next pose (now: {reel.Name})   G grid   N night   [ ] zoom   R reset   T toss him up   H hide this   ` numbers. Arrows or stick run, Space or the cross jumps, Shift or the circle dashes (hold it and a direction to sprint). J, C or the square swings the sword (hold up for an up strike, down in the air for a down strike: it bounces him off what it hits). The charge and parry do not work yet.", wrap);
             }
             if (v.Debug)
             {
@@ -49,6 +49,7 @@ namespace Kaname.Game
                     $"held: {(held.Length == 0 ? "-" : held.ToString().TrimEnd())}   push {input.State.MoveX():0.00}",
                     $"coyote {P.Coyote:0.000}  buffer {P.JumpBuf:0.000}   apex {P.Apex:0.0} u   last jump {P.LastJump:0.0} u",
                     $"dash {(P.DashT > 0 ? "ON" : "-")}  cooldown {P.DashCd:0.00}  {(P.CanDash ? "ready" : "spent")}   last dash {P.LastDash:0} u",
+                    $"sword {(P.Atk != null ? P.Atk.Dir.ToString().ToLowerInvariant() + " " + P.Atk.T.ToString("0.00") : "-")}  cooldown {P.AtkCd:0.00}  blows landed {P.Strikes}  hit-stop {w.Hitstop:0.000}",
                     $"camera {w.Cam.X:0.0} (leads him by {w.K.CameraLead:0} u)   zoom {v.Zoom:0.00}",
                 };
                 style.normal.textColor = v.Night ? Ink("#cfd8ff") : Ink("#2b3350");

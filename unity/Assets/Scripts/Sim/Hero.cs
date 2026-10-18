@@ -1,12 +1,32 @@
 using System;
+using System.Collections.Generic;
 
 namespace Kaname.Sim
 {
-    // Kaname's body (js/hero.js). Rungs U2 and U3 have the run, the jump, the dash and the sprint: a box that accelerates, turns and stops on the numbers of
-    // the design, jumps (a variable height, coyote time, a buffered press), dashes (a burst of 128 u, one per jump in the air) and sprints (hold dash
-    // and a direction), falls and lands on the stage and bumps its head. The sword and pogo arrive in U4, the charge and draw in U5, health and the
-    // parry in U6, each one proved against the recorded traces. Nothing here reads or writes anything
+    // Kaname's body (js/hero.js). Rungs U2 to U4 have the run, the jump, the dash, the sprint, the sword and the pogo: a box that accelerates, turns and
+    // stops on the numbers of the design, jumps (a variable height, coyote time, a buffered press), dashes (a burst of 128 u, one per jump in the air),
+    // sprints (hold dash and a direction), swings a sword (forward, up, or down in the air; a blow that lands holds the world still for a moment, and a
+    // down blow bounces him up: the pogo), falls and lands on the stage and bumps its head. The charge and draw arrive in U5, health and the parry in
+    // U6, each one proved against the recorded traces. Nothing here reads or writes anything
     // drawn: the simulation is numbers, and the look reads them.
+    // A swing in progress (js/hero.js `atk`): which way, how far through it, and which dummies it has already struck (one blow per swing per target).
+    public sealed class Strike
+    {
+        public StrikeDir Dir;
+        public double T;                       // time since the press
+        public int Face;                       // the way he faced when it began: it cannot turn mid-blade
+        public bool Alt;                       // forward cuts alternate: high to low, then low to high (drawn only)
+        public readonly List<Dummy> Hit = new List<Dummy>();
+        public double Live0, Live1, Total;     // the blade is live from Live0 to Live1; the swing is over at Total
+        public bool Swinging => T < Live1 - 1e-6;
+    }
+
+    // What his blade can hit right now: its box, which way, and how hard (1 for a strike, 3 for the draw).
+    public sealed class Blow
+    {
+        public Box Box; public StrikeDir Dir; public int Face; public List<Dummy> Hit; public double Power;
+    }
+
     public sealed class Hero
     {
         readonly Tuning k;
@@ -38,6 +58,14 @@ namespace Kaname.Sim
         public bool JustDashed;            // true for the step on which a dash began (the look stretches him)
         public bool TrailActive;           // dashing or lunging this step (the look draws speed lines from it)
 
+        // the sword
+        public Strike Atk;                 // the swing in progress, or null
+        public double AtkCd;               // time until the next swing may start
+        public double AtkBuf;              // time left on a swing press made too early
+        public int Strikes;                // blows he has landed
+        public bool SlashAlt;              // which way the next forward cut runs
+        public bool JustPogoed;            // true for the step a down blow bounced him (the look stretches him)
+
         public bool Scripted;              // the pose reel (a test aid for judging his look) drives his speed itself, so the run code leaves it alone
 
         public Hero(Tuning tuning, double x = 0, double y = 0)
@@ -55,16 +83,22 @@ namespace Kaname.Sim
         {
             Px = Cx; Py = Y;
             bool wasGround = OnGround;
-            JustJumped = false; JustDashed = false;
+            JustJumped = false; JustDashed = false; JustPogoed = false;
             IControls inp = controls;                                   // (while stunned or down he will hear NoControls: U6)
             double mx = inp.MoveX(), dashHeld = inp.Held(Act.Dash) ? 1 : 0;
+            if (Atk != null) { Atk.T += dt; if (Atk.T >= Atk.Total - 1e-6) Atk = null; }
 
             // ---- dash: a press starts it (a press up to 0.1 s early is kept); on the ground only the cooldown limits it, in the air it is one per jump ----
             DashCd = Math.Max(0, DashCd - dt);
             DashBuf = inp.Hit(Act.Dash) ? k.DashBuffer : Math.Max(0, DashBuf - dt);
-            if (DashBuf > 0 && DashCd <= 0 && CanDash && DashT <= 0) StartDash(mx);    // (a dash cuts a swing's recovery short, never a blade still looking for its mark: U4)
+            if (DashBuf > 0 && DashCd <= 0 && CanDash && DashT <= 0 && !Committed()) { Atk = null; StartDash(mx); }   // a dash cuts a swing's recovery short, or its blade once it has landed, never a blade still looking for its mark
             bool dashing = DashT > 0, dashEnds = false;
             TrailActive = dashing;                                                      // (and a lunge: U5)
+
+            // ---- sword: a press (kept 0.12 s) starts a strike: forward, up (hold up), or down (hold down in the air); not while dashing ----
+            AtkCd = Math.Max(0, AtkCd - dt);
+            AtkBuf = inp.Hit(Act.Attack) ? k.AttackBuffer : Math.Max(0, AtkBuf - dt);
+            if (AtkBuf > 0 && AtkCd <= 0 && Atk == null && !dashing) StartAttack(inp);          // (nor with the guard up: U6)
 
             // ---- horizontal: the keys are a full push, the stick is analog; holding dash raises the top speed (sprint) (the guard and the charge slow it: U5, U6) ----
             if (Scripted) { }
@@ -82,7 +116,7 @@ namespace Kaname.Sim
                 else if (Math.Abs(Vx) > Math.Abs(target)) acc = wasGround ? k.GroundDecel : k.AirDecel;
                 else acc = wasGround ? k.GroundAccel : k.AirAccel;
                 Vx = Mathx.Approach(Vx, target, acc * dt);
-                if (mx != 0) Face = Mathx.Sign(mx);                       // (not while committed to a swing: U4)
+                if (mx != 0 && !Committed()) Face = Mathx.Sign(mx);       // he cannot turn while the blade is looking for its mark
             }
 
             // ---- jump: coyote time, a buffered press, a variable height ----
@@ -133,6 +167,66 @@ namespace Kaname.Sim
             if (!OnGround) Apex = Math.Max(Apex, AirStartY - Y);
             if (!wasGround && OnGround) { JustLanded = true; LastJump = Apex; }
             if (OnGround) CanDash = true;                                                 // landing refills the air dash
+        }
+
+        // the strike's direction is fixed when it starts: up if up is held, down if down is held in the air, otherwise the way he faces
+        void StartAttack(IControls inp)
+        {
+            var dir = inp.Held(Act.Up) ? StrikeDir.Up : (inp.Held(Act.Down) && !OnGround) ? StrikeDir.Down : StrikeDir.Fwd;
+            if (dir == StrikeDir.Fwd) SlashAlt = !SlashAlt;                                    // forward cuts alternate: high to low, then low to high
+            Atk = new Strike { Dir = dir, T = 0, Face = Face, Alt = SlashAlt, Live0 = k.AttackStartup, Live1 = k.AttackStartup + k.AttackActive, Total = k.AttackTime };
+            AtkCd = k.AttackCooldown; AtkBuf = 0;
+        }
+
+        // true from the press until the blade stops being live: he cannot turn, dash or start another swing in this part of it
+        public bool Swinging() => Atk != null && Atk.T < Atk.Live1 - 1e-6;
+
+        // committed to the cut: the blade is live and has hit nothing yet. Once a blow lands he is free to dash or turn at once (attack-to-reset)
+        public bool Committed() => Swinging() && (Atk.Dir == StrikeDir.Draw || Atk.Hit.Count == 0);
+
+        // the box the blade covers right now, in the world (null when it is not live)
+        Box? SwordBox(out StrikeDir dir)
+        {
+            dir = StrikeDir.Fwd;
+            var a = Atk; if (a == null || a.T < a.Live0 - 1e-6 || !Swinging()) return null;
+            dir = a.Dir; int f = a.Face; double x0 = Cx + f * W / 2;
+            switch (a.Dir)
+            {
+                case StrikeDir.Up: return new Box(Cx - 30, Y - 70, 60, 40);                      // above and around his head
+                case StrikeDir.Down: return new Box(Cx - 26, Y - 6, 52, 40);                     // below and around his feet
+                case StrikeDir.Draw: return new Box(f > 0 ? Cx - 4 : Cx - 8 - k.DrawReach, Y - 46, 12 + k.DrawReach, 46);   // all of him and 62 u ahead, as he lunges (U5)
+                default: return new Box(f > 0 ? x0 : x0 - k.Reach, Y - 40, k.Reach, 38);         // in front, from the knee to the head
+            }
+        }
+
+        // the blow in progress that can hit things this step: its box, who it has already struck, and how hard (the world resolves it)
+        public Blow Blow()
+        {
+            var box = SwordBox(out var dir);
+            return box.HasValue ? new Blow { Box = box.Value, Dir = dir, Face = Atk.Face, Hit = Atk.Hit, Power = dir == StrikeDir.Draw ? 3 : 1 } : null;
+        }
+
+        // a blow of his has landed (the world calls this): any blow struck in the air gives back his air dash, and a down strike is a pogo: it bounces
+        // him up, cancelling the fall, as if he had pushed off the thing he hit, with a fresh jump's worth of control
+        public void OnStrike(StrikeDir dir)
+        {
+            Strikes++;
+            if (!OnGround) CanDash = true;
+            if (dir == StrikeDir.Down)
+            {
+                Vy = -k.PogoV; Jumping = false; Coyote = 0; AirStartY = Y; Apex = 0;           // (Apex now measures the bounce)
+                JustPogoed = true;
+            }
+        }
+
+        // hit-stop: the world holds still, but presses made meanwhile are kept for when it moves again
+        public void Freeze(IControls inp)
+        {
+            Px = Cx; Py = Y;
+            JustJumped = JustDashed = JustPogoed = false;                                       // (those events belong to the step they happened in)
+            if (inp.Hit(Act.Jump)) JumpBuf = k.JumpBuffer;
+            if (inp.Hit(Act.Dash)) DashBuf = k.DashBuffer;
+            if (inp.Hit(Act.Attack)) AtkBuf = k.AttackBuffer;                                   // (and the parry's: U6)
         }
 
         // a dash: the way he pushes (the way he faces if he pushes nothing), flat, cancelling a rise or a fall

@@ -77,7 +77,7 @@ namespace Kaname.EditorTools
         }
 
         // a camera of its own, on a layer nothing else uses, looks at the mesh through the game's own ink material and pipeline, into a texture
-        static byte[] Photograph(Material material, InkCanvas canvas, double cx, double cy)
+        public static byte[] Photograph(Material material, InkCanvas canvas, double cx, double cy, double winW = W, double winH = H)
         {
             const int Layer = 31;
             var mesh = new Mesh { indexFormat = UnityEngine.Rendering.IndexFormat.UInt32 };
@@ -88,7 +88,7 @@ namespace Kaname.EditorTools
                 var k = canvas.Colors[i]; cols.Add(new Color(k.R, k.G, k.B, k.A)); uvs.Add(Vector2.zero);
             }
             mesh.SetVertices(verts); mesh.SetColors(cols); mesh.SetUVs(0, uvs); mesh.SetTriangles(canvas.Indices, 0);
-            int w = (int)(W * PxPerU), h = (int)(H * PxPerU);
+            int w = (int)(winW * PxPerU), h = (int)(winH * PxPerU);
 
             var meshGo = new GameObject("PoseSheet mesh") { layer = Layer, hideFlags = HideFlags.HideAndDontSave };
             meshGo.transform.localScale = new Vector3(1f / 32, -1f / 32, 1f);
@@ -96,7 +96,7 @@ namespace Kaname.EditorTools
             meshGo.AddComponent<MeshRenderer>().sharedMaterial = material;
             var camGo = new GameObject("PoseSheet camera") { hideFlags = HideFlags.HideAndDontSave };
             var cam = camGo.AddComponent<Camera>();
-            cam.orthographic = true; cam.orthographicSize = (float)(H / 2 / 32); cam.clearFlags = CameraClearFlags.SolidColor; cam.backgroundColor = Color.white;
+            cam.orthographic = true; cam.orthographicSize = (float)(winH / 2 / 32); cam.clearFlags = CameraClearFlags.SolidColor; cam.backgroundColor = Color.white;
             cam.nearClipPlane = 0.1f; cam.farClipPlane = 50f; cam.cullingMask = 1 << Layer; cam.enabled = false;
             cam.transform.position = new Vector3((float)(cx / 32), (float)(-cy / 32), -10);
             var rt = new RenderTexture(w, h, 24, RenderTextureFormat.ARGB32) { antiAliasing = 4 };
