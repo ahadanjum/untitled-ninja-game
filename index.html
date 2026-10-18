@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kaname — feel ladder</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #0b0d14; overflow: hidden; }
+  #wrap { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+  canvas { background: #fff; outline: none; display: block; }
+</style>
+</head>
+<body>
+<div id="wrap"><canvas id="c" width="1280" height="720" tabindex="0"></canvas></div>
+<!-- Classic scripts (no modules, no build step) so this also runs by double-clicking the file. -->
+<script src="js/util.js"></script>
+<script src="js/stage.js"></script>
+<script src="js/hero.js"></script>
+<script src="js/art_hero.js"></script>
+<script src="js/dummy.js"></script>
+<script src="js/striker.js"></script>
+<script>if (location.search.includes('manual')) document.write('<script src="dev/harness.js"><\/script>');</script>
+<script src="js/game.js"></script>
+</body>
+</html>

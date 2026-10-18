@@ -1,0 +1,214 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="900" viewBox="0 0 800 900">
+<defs>
+  <!-- ======== geometry (local box, ground y = 612; 8 heads tall; facing right) ======== -->
+  <path id="hoodTail1" d="M226 130 C210 126 192 128 176 138 C192 138 208 144 224 152 Z"/>
+  <path id="hoodTail2" d="M224 146 C210 148 196 156 186 168 C200 164 214 164 226 168 Z"/>
+  <path id="head" d="M224 140 C226 120 244 108 264 110 C284 112 296 128 296 148 C296 162 288 172 276 177 C262 182 244 178 234 168 C226 160 223 150 224 140 Z"/>
+  <path id="faceband" d="M246 136 C262 130 282 132 297 140 L298 155 C282 151 262 153 244 159 C242 150 243 142 246 136 Z"/>
+  <path id="mask" d="M242 157 C262 151 284 151 299 155 C299 169 291 179 277 183 C261 187 246 177 242 165 Z"/>
+  <path id="scarfA" d="M238 196 C214 208 182 208 148 196 C120 186 94 192 66 210 C96 212 122 212 148 224 C182 238 220 232 246 210 Z"/>
+  <path id="scarfB" d="M246 206 C224 232 194 248 162 254 C134 260 110 270 90 290 C118 284 144 282 172 274 C208 266 240 248 262 218 Z"/>
+  <path id="torso" d="M226 214 C250 204 284 212 296 234 C304 270 296 322 286 360 C266 370 238 370 220 362 C212 322 210 262 226 214 Z"/>
+  <path id="lapel" d="M252 206 C264 244 276 296 286 358 L268 362 C256 312 242 262 232 212 Z"/>
+  <path id="obi" d="M218 346 C244 356 274 356 294 346 L298 374 C274 384 238 384 220 376 Z"/>
+  <path id="obiKnot" d="M220 358 C198 352 182 364 172 386 C190 378 206 380 220 374 Z"/>
+  <path id="obiTail1" d="M212 372 C196 390 186 412 178 436 C196 420 212 406 228 384 Z"/>
+  <path id="obiTail2" d="M226 376 C214 396 210 418 208 440 C220 422 232 404 240 382 Z"/>
+  <path id="upperArm" d="M256 232 C262 214 292 216 302 238 C310 262 316 286 322 302 C314 316 292 316 286 306 C274 286 256 260 256 232 Z"/>
+  <path id="forearm" d="M288 308 C296 296 314 294 324 302 C338 318 350 338 354 356 C348 368 332 370 328 362 C314 342 300 324 288 308 Z"/>
+  <path id="fist" d="M332 352 C338 342 358 344 364 354 C368 366 358 378 344 376 C330 374 326 360 332 352 Z"/>
+  <path id="hilt" d="M330 346 L396 322 L400 340 L336 368 Z"/>
+  <path id="sheath" d="M332 360 L62 458 L56 474 L336 378 Z"/>
+  <path id="farArm" d="M220 226 C204 230 190 248 184 272 C180 288 176 302 178 316 C170 334 164 352 160 372 C170 380 184 378 190 370 C196 346 204 328 212 308 C222 284 232 258 232 238 C232 230 228 224 220 226 Z"/>
+  <path id="legNear" d="M236 372 C256 362 286 372 298 394 C318 424 332 448 334 474 C332 492 324 504 318 514 C314 544 310 574 308 596 L280 596 C282 568 286 540 286 516 C284 498 274 484 266 468 C254 446 240 416 232 392 Z"/>
+  <path id="footNear" d="M278 594 L310 594 C328 596 346 606 354 616 L274 618 Z"/>
+  <path id="legFar" d="M212 378 C194 384 174 410 158 440 C140 474 126 520 122 566 L120 598 L148 598 C150 568 156 534 168 508 C182 482 204 452 224 416 Z"/>
+  <path id="footFar" d="M116 596 L150 596 C164 600 174 608 180 618 L108 620 Z"/>
+
+  <clipPath id="cLegN"><use href="#legNear"/></clipPath>
+  <clipPath id="cLegF"><use href="#legFar"/></clipPath>
+  <clipPath id="cFore"><use href="#forearm"/></clipPath>
+  <clipPath id="cHilt"><use href="#hilt"/></clipPath>
+  <clipPath id="cTorso"><use href="#torso"/></clipPath>
+
+  <!-- gradients -->
+  <linearGradient id="gGi" x1="0" y1="0" x2="1" y2="0.4"><stop offset="0" stop-color="#0d1c58"/><stop offset=".6" stop-color="#1f3d96"/><stop offset="1" stop-color="#2d52b8"/></linearGradient>
+  <linearGradient id="gLapel" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2a4cae"/><stop offset="1" stop-color="#5a82e0"/></linearGradient>
+  <linearGradient id="gPants" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0c1a4e"/><stop offset=".7" stop-color="#1a3584"/><stop offset="1" stop-color="#2447a8"/></linearGradient>
+  <linearGradient id="gSkin" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d9a888"/><stop offset=".55" stop-color="#b98265"/><stop offset="1" stop-color="#7e5240"/></linearGradient>
+  <linearGradient id="gScarf" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7a8dba"/><stop offset="1" stop-color="#bccae8"/></linearGradient>
+  <linearGradient id="gMetal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#eef3fa"/><stop offset=".5" stop-color="#9aa6ba"/><stop offset="1" stop-color="#5c677c"/></linearGradient>
+  <linearGradient id="gSheath" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4b3590"/><stop offset=".3" stop-color="#1c1236"/><stop offset="1" stop-color="#0b0718"/></linearGradient>
+  <linearGradient id="gHood" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0e1f5e"/><stop offset="1" stop-color="#1d3b92"/></linearGradient>
+  <linearGradient id="gCurse" gradientUnits="userSpaceOnUse" x1="290" y1="300" x2="352" y2="362"><stop offset="0" stop-color="#cf9370" stop-opacity=".1"/><stop offset=".3" stop-color="#43206e" stop-opacity=".88"/><stop offset="1" stop-color="#120824" stop-opacity="1"/></linearGradient>
+
+  <!-- shadow crescents (lower-left) and cool rim light (upper-left) -->
+  <mask id="shTorso" maskUnits="userSpaceOnUse" x="0" y="0" width="500" height="700"><use href="#torso" fill="#fff"/><use href="#torso" fill="#000" transform="translate(26,-14)"/></mask>
+  <mask id="rmTorso" maskUnits="userSpaceOnUse" x="0" y="0" width="500" height="700"><use href="#torso" fill="#fff"/><use href="#torso" fill="#000" transform="translate(6,-1)"/></mask>
+  <mask id="shLegN" maskUnits="userSpaceOnUse" x="0" y="0" width="500" height="700"><use href="#legNear" fill="#fff"/><use href="#legNear" fill="#000" transform="translate(24,-14)"/></mask>
+  <mask id="rmLegN" maskUnits="userSpaceOnUse" x="0" y="0" width="500" height="700"><use href="#legNear" fill="#fff"/><use href="#legNear" fill="#000" transform="translate(6,-1)"/></mask>
+  <mask id="shLegF" maskUnits="userSpaceOnUse" x="0" y="0" width="500" height="700"><use href="#legFar" fill="#fff"/><use href="#legFar" fill="#000" transform="translate(24,-14)"/></mask>
+  <mask id="shHead" maskUnits="userSpaceOnUse" x="0" y="0" width="500" height="700"><use href="#head" fill="#fff"/><use href="#head" fill="#000" transform="translate(16,-9)"/></mask>
+  <mask id="rmHead" maskUnits="userSpaceOnUse" x="0" y="0" width="500" height="700"><use href="#head" fill="#fff"/><use href="#head" fill="#000" transform="translate(5,-1)"/></mask>
+  <mask id="shArm" maskUnits="userSpaceOnUse" x="0" y="0" width="500" height="700"><use href="#upperArm" fill="#fff"/><use href="#upperArm" fill="#000" transform="translate(12,-8)"/></mask>
+  <mask id="shFar" maskUnits="userSpaceOnUse" x="0" y="0" width="500" height="700"><use href="#farArm" fill="#fff"/><use href="#farArm" fill="#000" transform="translate(12,-8)"/></mask>
+
+  <filter id="blur6" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="9"/></filter>
+  <filter id="blur2" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="2.4"/></filter>
+  <filter id="blur1" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.1"/></filter>
+  <filter id="grain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
+
+  <linearGradient id="skyD" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#070a2c"/><stop offset=".5" stop-color="#1b1758"/><stop offset=".85" stop-color="#3a2a86"/></linearGradient>
+  <radialGradient id="moonD" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#eaf6ff"/><stop offset=".5" stop-color="#9ad6ff"/><stop offset="1" stop-color="#7f62f0"/></radialGradient>
+  <radialGradient id="moonHalo" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#9ad6ff" stop-opacity=".5"/><stop offset="1" stop-color="#9ad6ff" stop-opacity="0"/></radialGradient>
+  <linearGradient id="gndD" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#241a66"/><stop offset="1" stop-color="#0a0828"/></linearGradient>
+  <linearGradient id="mist" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6a5cd0" stop-opacity="0"/><stop offset="1" stop-color="#6a5cd0" stop-opacity=".45"/></linearGradient>
+
+  <g id="cursedLines" fill="none" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M296 312 L306 312 L304 322 L316 324 L312 334 L324 338 L322 348 L334 352 L332 360"/>
+    <path d="M308 304 L316 308 L322 304 L328 314 L338 312 L342 324 L350 326"/>
+    <path d="M306 322 L298 330 M316 324 L322 332 M324 338 L318 346 M334 352 L342 346 M328 314 L326 322"/>
+  </g>
+
+  <!-- ======== the figure ======== -->
+  <g id="kaname" stroke="#04081c" stroke-width="1.25" stroke-linejoin="round" stroke-linecap="round">
+    <ellipse cx="236" cy="612" rx="190" ry="14" fill="#03040f" opacity=".6" stroke="none" filter="url(#blur2)"/>
+
+    <!-- scarf tails -->
+    <use href="#scarfA" fill="url(#gScarf)"/>
+    <path d="M70 210 C100 210 126 212 150 222 C184 236 220 230 244 210" fill="none" stroke="#5a6a96" stroke-width="1.6" opacity=".6"/>
+    <path d="M110 204 C130 200 160 206 196 204 M92 296 C120 288 150 284 180 276" fill="none" stroke="#6a7aa6" stroke-width="1.4" opacity=".55"/>
+    <use href="#scarfB" fill="#8798c4"/>
+    <path d="M100 286 C134 280 168 270 206 258 C230 248 246 236 258 222" fill="none" stroke="#56658f" stroke-width="1.6" opacity=".6"/>
+
+    <!-- hood tails -->
+    <use href="#hoodTail1" fill="#12286c"/>
+    <use href="#hoodTail2" fill="#0d2058"/>
+    <path d="M214 136 C196 130 176 132 160 142 M214 150 C196 150 178 158 168 168" fill="none" stroke="#2e4aa8" stroke-width="1.4" opacity=".7"/>
+
+    <!-- scabbard (far side), glow, cord -->
+    <ellipse cx="200" cy="410" rx="150" ry="22" transform="rotate(-20 200 410)" fill="#8f4dff" opacity=".22" filter="url(#blur6)" stroke="none"/>
+    <use href="#sheath" fill="url(#gSheath)"/>
+    <path d="M330 362 L64 459" stroke="#8b6fe0" stroke-width="1.6" opacity=".75" fill="none"/>
+    <rect x="-3" y="-11" width="7" height="22" rx="1.5" transform="translate(318 368) rotate(-20)" fill="url(#gMetal)"/>
+    <rect x="-3" y="-10" width="9" height="20" rx="1.5" transform="translate(66 463) rotate(-20)" fill="url(#gMetal)"/>
+    <path d="M252 400 C248 424 258 440 252 458 C250 466 256 472 260 476" fill="none" stroke="#5a3aa8" stroke-width="3.2"/>
+
+    <!-- far arm: bare, with the leather bracer and the rope coil -->
+    <use href="#farArm" fill="url(#gSkin)"/>
+    <use href="#farArm" fill="#7a4a34" mask="url(#shFar)" stroke="none" opacity=".75"/>
+    <g transform="rotate(14 186 346)">
+      <path d="M168 322 C180 330 198 330 204 320 L200 366 C192 374 176 374 170 366 Z" fill="#4a3a30"/>
+      <path d="M170 332 L202 330 M170 344 L201 342 M171 356 L200 354" stroke="#2a1f1a" stroke-width="1.4" fill="none"/>
+      <g fill="#b9a07a" stroke="#5a4a30" stroke-width="1.6"><ellipse cx="186" cy="330" rx="19" ry="5"/><ellipse cx="186" cy="341" rx="19" ry="5"/><ellipse cx="186" cy="352" rx="19" ry="5"/></g>
+    </g>
+    <path d="M168 372 C158 388 156 406 162 424" fill="none" stroke="#b9a07a" stroke-width="4.4"/>
+    <path d="M162 428 C158 432 166 438 170 432 C172 428 166 424 162 428 Z" fill="#aab4c4"/>
+    <path d="M160 372 C152 376 148 386 152 394 C158 398 166 392 168 384 Z" fill="url(#gSkin)"/>
+
+    <!-- far leg -->
+    <use href="#legFar" fill="url(#gPants)"/>
+    <use href="#legFar" fill="#07123a" mask="url(#shLegF)" stroke="none"/>
+    <g clip-path="url(#cLegF)"><rect x="110" y="528" width="80" height="80" fill="#8fa3cc" stroke="none"/><rect x="100" y="528" width="40" height="80" fill="#445a92" opacity=".6" stroke="none"/><path d="M110 540 L190 520 M110 554 L190 534 M110 568 L190 548 M110 582 L190 562" stroke="#060a22" stroke-width="2" fill="none"/></g>
+    <path d="M150 420 C146 440 140 460 136 484 M176 402 C168 420 160 440 154 462" fill="none" stroke="#050f3a" stroke-width="2" opacity=".6"/>
+    <use href="#footFar" fill="#0d1a4a"/>
+
+    <!-- sash tails -->
+    <use href="#obiTail2" fill="#1c2750"/>
+    <use href="#obiTail1" fill="#222f5c"/>
+    <use href="#obiKnot" fill="#2a3870"/>
+
+    <!-- torso -->
+    <use href="#torso" fill="url(#gGi)"/>
+    <use href="#torso" fill="#08123a" mask="url(#shTorso)" stroke="none" opacity=".9"/>
+    <g clip-path="url(#cTorso)" fill="none" stroke="#050f3a" stroke-width="2" opacity=".55"><path d="M232 250 C246 262 262 270 280 272 M228 290 C246 302 266 308 286 308 M226 326 C244 336 264 340 288 338"/></g>
+    <use href="#lapel" fill="url(#gLapel)"/>
+    <path d="M232 212 C246 244 262 290 270 360" fill="none" stroke="#9ab8ff" stroke-width="1.4" opacity=".32"/>
+    <use href="#torso" fill="#b8cdff" mask="url(#rmTorso)" stroke="none" opacity=".5"/>
+    <use href="#obi" fill="#1d2748"/>
+    <path d="M220 360 C246 370 274 370 296 360" fill="none" stroke="#3a4a86" stroke-width="1.8"/>
+    <path d="M236 354 C240 366 240 376 238 382 M262 358 C264 368 264 378 262 384" fill="none" stroke="#0d1430" stroke-width="1.8"/>
+
+    <!-- near leg -->
+    <use href="#legNear" fill="url(#gPants)"/>
+    <use href="#legNear" fill="#07123a" mask="url(#shLegN)" stroke="none"/>
+    <path d="M246 396 C262 410 276 430 284 452 M300 408 C312 432 320 454 322 476 M290 480 C296 500 296 520 292 540" fill="none" stroke="#050f3a" stroke-width="2" opacity=".6"/>
+    <g clip-path="url(#cLegN)"><rect x="270" y="528" width="60" height="80" fill="#9db1d8" stroke="none"/><rect x="262" y="528" width="30" height="80" fill="#445a92" opacity=".55" stroke="none"/><path d="M270 540 L330 522 M270 554 L330 536 M270 568 L330 550 M270 582 L330 564" stroke="#060a22" stroke-width="2" fill="none"/></g>
+    <use href="#legNear" fill="#b8cdff" mask="url(#rmLegN)" stroke="none" opacity=".5"/>
+    <use href="#footNear" fill="#0d1a4a"/>
+    <path d="M318 596 L322 618" stroke="#050818" stroke-width="2"/>
+
+    <!-- neck wrap and head -->
+    <path d="M246 176 L242 208 C254 214 268 214 278 208 L276 178 Z" fill="#14296c"/>
+    <use href="#head" fill="url(#gHood)"/>
+    <use href="#head" fill="#06113a" mask="url(#shHead)" stroke="none" opacity=".9"/>
+    <path d="M226 138 C246 124 276 124 296 134" fill="none" stroke="#3c5ac0" stroke-width="2" opacity=".65"/>
+    <use href="#faceband" fill="url(#gSkin)" stroke="none"/>
+    <path d="M244 150 C262 144 282 146 298 152" fill="none" stroke="#7a4a34" stroke-width="2" opacity=".5"/>
+    <path d="M259 134 C270 129 284 130 295 136" stroke="#2a1812" stroke-width="3.4" fill="none"/>
+    <path d="M263 143 C270 138 280 138 289 142 C282 148 272 149 263 145 Z" fill="#f3f6ff" stroke="#2a1812" stroke-width="1.2"/>
+    <circle cx="278" cy="143.4" r="3.5" fill="#1b2e6a" stroke="none"/><circle cx="278" cy="143.4" r="1.7" fill="#04061a" stroke="none"/><circle cx="279.4" cy="142" r="1" fill="#fff" stroke="none"/>
+    <use href="#mask" fill="#0e2058"/>
+    <path d="M246 164 C262 160 282 160 298 164 M250 172 C264 170 282 170 292 174" fill="none" stroke="#2c48a0" stroke-width="1.4" opacity=".75"/>
+    <use href="#head" fill="#b8cdff" mask="url(#rmHead)" stroke="none" opacity=".5"/>
+    <!-- scarf knot -->
+    <ellipse cx="254" cy="198" rx="28" ry="12" transform="rotate(10 254 198)" fill="#aebde0"/>
+    <path d="M232 196 C246 204 264 206 278 200" fill="none" stroke="#6a7aa6" stroke-width="1.4"/>
+
+    <!-- near arm: bare, muscled; the cursed forearm -->
+    <ellipse cx="324" cy="332" rx="46" ry="38" fill="#8f4dff" opacity=".42" filter="url(#blur6)" stroke="none"/>
+    <use href="#upperArm" fill="url(#gSkin)"/>
+    <use href="#upperArm" fill="#7a4a34" mask="url(#shArm)" stroke="none" opacity=".8"/>
+    <path d="M272 244 C288 238 302 252 304 272 C292 268 278 262 272 244 Z" fill="#f0c7a4" opacity=".26" stroke="none"/>
+    <path d="M276 280 C288 292 302 298 316 298" fill="none" stroke="#7a4a34" stroke-width="2" opacity=".6"/>
+    <use href="#forearm" fill="url(#gSkin)"/>
+    <use href="#forearm" fill="url(#gCurse)" stroke="none"/>
+    <use href="#cursedLines" stroke="#8f4dff" stroke-width="8" opacity=".6" clip-path="url(#cFore)" filter="url(#blur1)"/>
+    <use href="#cursedLines" stroke="#d6b8ff" stroke-width="2.4" clip-path="url(#cFore)"/>
+    <path d="M300 302 C314 300 326 308 334 318" fill="none" stroke="#c8a2ff" stroke-width="1.4" opacity=".6"/>
+
+    <!-- katana hilt: tsuka-ito diamond wrap, steel tsuba, kashira -->
+    <use href="#hilt" fill="#241a4e"/>
+    <g clip-path="url(#cHilt)" stroke="#7a62c8" stroke-width="1.8" fill="none" opacity=".95">
+      <path d="M338 364 L352 332 M352 358 L366 326 M366 352 L380 320 M380 346 L394 316"/><path d="M338 332 L352 364 M352 326 L366 358 M366 320 L380 352 M380 314 L394 346"/>
+    </g>
+    <path d="M332 346 L396 322" stroke="#8b6fe0" stroke-width="1.4" opacity=".6" fill="none"/>
+    <g transform="translate(332 358) rotate(-20)"><ellipse rx="9" ry="22" fill="url(#gMetal)"/><ellipse rx="9" ry="22" fill="none" stroke="#3a4458" stroke-width="1.4"/><ellipse cx="0" cy="-9" rx="2.6" ry="4" fill="#0a0e1c" stroke="none"/><ellipse cx="0" cy="9" rx="2.6" ry="4" fill="#0a0e1c" stroke="none"/></g>
+    <ellipse cx="403" cy="331" rx="7" ry="9" transform="rotate(-20 403 331)" fill="url(#gMetal)"/>
+    <use href="#fist" fill="url(#gSkin)"/>
+    <use href="#fist" fill="#2a1450" opacity=".4" stroke="none"/>
+    <path d="M334 354 L352 348 M333 362 L354 356 M335 369 L352 363" stroke="#7a4a34" stroke-width="1.8" fill="none"/>
+    <path d="M344 344 C352 340 362 344 364 352" fill="none" stroke="#f6c9a2" stroke-width="1.6" opacity=".5"/>
+
+    <!-- smoke, embers and glow off the hilt and forearm -->
+    <ellipse cx="392" cy="330" rx="46" ry="30" fill="#8f4dff" opacity=".42" filter="url(#blur6)" stroke="none"/>
+    <path d="M390 322 C370 292 402 280 388 248 C382 232 392 218 402 208 C396 228 406 244 400 266 C392 292 414 304 400 322 Z" fill="#1a0a36" opacity=".92" stroke="none"/>
+    <path d="M404 316 C426 294 400 276 416 248 C424 232 418 216 426 204 C430 224 440 240 426 266 C414 290 430 302 418 318 Z" fill="#2a1450" opacity=".7" stroke="none"/>
+    <path d="M318 300 C304 280 330 272 318 250 C314 240 320 232 328 226 C326 240 336 250 332 264 C328 280 342 290 332 302 Z" fill="#1a0a36" opacity=".65" stroke="none"/>
+    <g fill="#c9a6ff" stroke="none" filter="url(#blur1)"><circle cx="410" cy="232" r="2.6"/><circle cx="392" cy="204" r="2"/><circle cx="426" cy="262" r="2.2"/><circle cx="332" cy="238" r="2"/><circle cx="346" cy="268" r="1.8"/><circle cx="376" cy="296" r="2"/></g>
+  </g>
+</defs>
+
+<!-- ======== stage ======== -->
+<rect width="800" height="900" fill="url(#skyD)"/>
+<circle cx="610" cy="190" r="190" fill="url(#moonHalo)"/>
+<circle cx="610" cy="190" r="88" fill="url(#moonD)"/>
+<circle cx="586" cy="168" r="12" fill="#6a56d8" opacity=".35"/><circle cx="632" cy="212" r="17" fill="#6a56d8" opacity=".3"/><circle cx="606" cy="226" r="8" fill="#6a56d8" opacity=".35"/>
+<g fill="#d6e6ff" opacity=".8"><circle cx="80" cy="140" r="1.8"/><circle cx="170" cy="210" r="1.4"/><circle cx="290" cy="110" r="2"/><circle cx="400" cy="170" r="1.4"/><circle cx="470" cy="80" r="1.8"/><circle cx="720" cy="300" r="1.4"/><circle cx="90" cy="320" r="1.3"/><circle cx="330" cy="290" r="1.2"/></g>
+<path d="M0 560 C80 520 140 540 220 510 C320 474 420 530 520 500 C620 470 700 520 800 490 L800 900 L0 900 Z" fill="#171250" opacity=".85"/>
+<path d="M0 620 C100 590 200 610 300 592 C420 572 540 612 660 590 C720 580 770 590 800 586 L800 900 L0 900 Z" fill="#120e42"/>
+<g fill="#100c3a" opacity=".95"><rect x="96" y="470" width="40" height="150"/><path d="M62 472 C98 468 120 452 116 428 C130 452 156 468 190 472 C170 482 80 482 62 472 Z"/><rect x="104" y="400" width="24" height="46"/><path d="M82 404 C104 402 112 390 116 372 C120 390 132 402 150 404 C140 410 92 410 82 404 Z"/><rect x="110" y="340" width="12" height="40"/><path d="M96 344 C108 342 112 334 116 322 C120 334 124 342 136 344 C128 348 104 348 96 344 Z"/></g>
+<rect x="0" y="700" width="800" height="120" fill="url(#mist)"/>
+<ellipse cx="400" cy="640" rx="420" ry="40" fill="#8a7ee0" opacity=".16" filter="url(#blur6)"/>
+<rect x="0" y="796" width="800" height="104" fill="url(#gndD)"/>
+<path d="M0 796 L800 796" stroke="#4b3aa0" stroke-width="2" opacity=".7"/>
+<g stroke="#1e1668" stroke-width="2" opacity=".6"><path d="M0 832 H800 M0 868 H800 M160 797 V832 M420 797 V832 M660 797 V832 M90 832 V868 M300 832 V868 M540 832 V868 M740 832 V868"/></g>
+<g fill="#0a0830" opacity=".95"><path d="M40 800 l4 -26 l5 26 Z M62 800 l3 -34 l6 34 Z M720 800 l4 -28 l5 28 Z M744 800 l3 -34 l6 34 Z M764 800 l3 -24 l5 24 Z"/></g>
+<ellipse cx="400" cy="800" rx="300" ry="42" fill="#7a49d8" opacity=".18"/>
+
+<use href="#kaname" transform="translate(147 118) scale(1.12)"/>
+
+<rect width="800" height="900" filter="url(#grain)" opacity=".09" style="mix-blend-mode:overlay"/>
+<text x="40" y="52" font-family="Helvetica, Arial, sans-serif" font-size="26" font-weight="700" fill="#e3e8ff">D · more realistic</text>
+<text x="40" y="82" font-family="Helvetica, Arial, sans-serif" font-size="17" fill="#9fa9d6">eight-head proportions, anatomy, fabric, metal, glow</text>
+</svg>
