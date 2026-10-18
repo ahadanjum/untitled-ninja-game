@@ -103,10 +103,10 @@
     T.down('ArrowUp'); T.tap('KeyJ', 1); T.up('ArrowUp'); T.run(4); eq(skin(), 0, 'mid up-cut');
   });
 
-  test('look: the band, the tail and the sash are drawn in the blade\'s purple (look A, D095)', () => {
+  test('look: the band, the tail and the sash are drawn in the deep violet (look A, D095; darker in D117)', () => {
     T.reset(); G.hints = false; G.grid = false; T.down('ArrowRight'); T.run(30); render();
     const px = ctx.getImageData(200, 300, 880, 320).data; let n = 0;
-    for (let i = 0; i < px.length; i += 4) if (Math.abs(px[i] - 91) < 16 && Math.abs(px[i + 1] - 60) < 16 && Math.abs(px[i + 2] - 174) < 16) n++;
+    for (let i = 0; i < px.length; i += 4) if (Math.abs(px[i] - 58) < 14 && Math.abs(px[i + 1] - 34) < 14 && Math.abs(px[i + 2] - 115) < 14) n++;
     note('purplePixels', n); ok(n > 1250, `the band, tail and sash should show in purple (${n} pixels)`);
     ok(typeof LOOKS === 'undefined' && typeof G.look === 'undefined', 'the other looks are gone: there is one look');
   });

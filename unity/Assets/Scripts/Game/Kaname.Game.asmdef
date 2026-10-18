@@ -1,0 +1,19 @@
+{
+    "name": "Kaname.Game",
+    "rootNamespace": "Kaname.Game",
+    "references": [
+        "Kaname.Sim",
+        "Unity.InputSystem",
+        "Kaname.Ink",
+        "Kaname.Look"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

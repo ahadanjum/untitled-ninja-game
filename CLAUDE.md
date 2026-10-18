@@ -12,7 +12,7 @@ designer approved the run, the jump (D088), the dash and sprint (D099), the swor
 ladder is coded: no rooms, no world, no real enemies. Then `design/feel.md`, `hero.md`, `story.md`, `world-sketch.md`,
 `core-play-ideas.md` (options; the designer decides), and `docs/PROCESS.md` for the phases and the ladder.
 
-**Unity (D112): the real game will be built in Unity (free Personal tier); the plan is `docs/UNITY-PORT.md`. This JavaScript game is the executable spec until the port matches it.** Do not download or install anything for it without the designer's yes to the specific files.
+**Unity (D112): the real game is being built in Unity 6.3 LTS (free Personal tier) in `unity/`; the plan and the state are in `docs/UNITY-PORT.md`. This JavaScript game is the executable spec until the port matches it: `dev/trace.mjs` records its behaviour into `traces/`, and the C# must replay it to 0.001 u (`unity test unity --mode EditMode`).** Rungs U0 (the body, D116) and U1 (Kaname's look, moved first at the designer's word, D118) are built; the mechanics U2–U6 follow, each replayed against `traces/`. In Unity press **P** to cycle his poses. The outfit is black and the band deep violet (D117). Do not download or install anything for it without the designer's yes to the specific files; Unity's terms, sign-in and licence are theirs to accept. The repository is public on GitHub (`ahadanjum/untitled-ninja-game`); plain `git push` fails here with HTTP 400, use `git -c http.postBuffer=524288000 -c http.version=HTTP/1.1 push`.
 
 ## Rules for this repo
 1. **Code only on the feel ladder (D078).** Ask before starting each rung and wait for the designer's sign-off on the last. No
@@ -42,6 +42,8 @@ python3 serve.py                      # http://127.0.0.1:8770/   (the preview la
 node dev/run.mjs                      # acceptance tests, about 10 s: run before and after every change
 node dev/run.mjs --grep jump          # a subset;  --list shows everything;  --no-evidence skips screenshots;  --seed N;  --headed
 open test-results/index.html          # evidence: the screenshots and the measured numbers of every test
+node dev/trace.mjs [--check]          # record (or check) the golden traces the Unity port is proved against, into traces/
+unity test unity --mode EditMode --output /tmp/r.xml    # the Unity tests (Editor closed; needs the Unity CLI)
 ```
 Needs Node 22+ and Google Chrome (`CHROME_PATH` to override). Zero dependencies: `dev/run.mjs` drives headless Chrome over the DevTools
 protocol, serves the folder itself, gives every test a fresh page with a seeded `Math.random` and no real gamepad, so results are
@@ -71,7 +73,7 @@ spring (0.16 s) leading him by 36 u. The headband's tail is 7 links of 2.4 u, 17
 Retune on purpose only, and change the test in the same change.
 
 ## How Kaname is drawn (the designer's notes)
-Little Shinobi's ink silhouette: a round dark hood with a **purple headband (the blade's colour, D091) wrapped round the head just above the eyes, and the scarf is that
+Little Shinobi's ink silhouette: a round dark hood (black, D117) with a **deep-violet headband (D091, darkened in D117) wrapped round the head just above the eyes, and the scarf is that
 band's tail** (exactly as in Little Shinobi: one piece of cloth), glowing white eyes, a thin pale-blue rim, a purple sash, a plain katana at the
 hip (**no white tags or wrapping**), **no arms** (D103: as in Little Shinobi, the sword simply appears in his hand), a violet glow on the sword's hilt standing in for the curse. **No tail on the hood and no
 smoke** (the designer disliked both). The dark violet essence is to show in the sword's swing (rung 4 onward).
@@ -107,7 +109,7 @@ the last two steps are blended (measured; `?interp=1|0` forces it), on a 60 Hz d
 - No sound yet.
 
 ## Not decided yet: do not assume
-The engine for the finished game (D111: Unity, which Hollow Knight used and which has a Claude Code plugin, is an option for later; the plain-JS feel ladder continues for now) · How the world's art is made beyond the hero (the Belmont's Curse look was set aside for now) · a music piece per area and boss · the
+How the world's art is made beyond the hero (the Belmont's Curse look was set aside for now) · a music piece per area and boss · the
 game's name (the hero is Kaname) · the world's regions and layout · the core play beyond movement (tools, rope, parry, rest, death).
 
 ## Reference projects (read-only)

@@ -1,0 +1,17 @@
+{
+    "name": "Kaname.Look",
+    "rootNamespace": "Kaname.Look",
+    "references": [
+        "Kaname.Sim",
+        "Kaname.Ink"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

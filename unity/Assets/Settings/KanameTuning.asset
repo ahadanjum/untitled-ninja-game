@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1060d78808384d4fa3242058061b9b2, type: 3}
+  m_Name: KanameTuning
+  m_EditorClassIdentifier: Kaname.Game::Kaname.Game.KanameTuning
+  values:
+    BodyW: 16
+    BodyH: 34
+    Run: 240
+    GroundAccel: 3000
+    GroundDecel: 3600
+    Turn: 5200
+    AirAccel: 2200
+    AirDecel: 1500
+    Grav: 2200
+    FallMax: 900
+    JumpV: 740
+    JumpCut: 0.42
+    Coyote: 0.1
+    JumpBuffer: 0.12
+    DashSpeed: 640
+    DashTime: 0.2
+    DashCooldown: 0.45
+    DashBuffer: 0.1
+    DashExit: 210
+    Sprint: 336
+    AttackStartup: 0.03
+    AttackActive: 0.11
+    AttackTime: 0.2
+    AttackCooldown: 0.3
+    AttackBuffer: 0.12
+    Reach: 46
+    PogoV: 560
+    ChargeStart: 0.25
+    ChargeReady: 0.62
+    ChargeSlow: 0.4
+    DrawSpeed: 820
+    DrawTime: 0.16
+    DrawExit: 110
+    DrawReach: 62
+    Hp: 5
+    HurtInvuln: 1
+    HurtStun: 0.22
+    HurtKnock: 300
+    HurtHop: 220
+    ParryWindows:
+    - 0.26
+    - 0.16
+    - 0.09
+    - 0.05
+    ParrySpamTime: 0.5
+    ParryBuffer: 0.12
+    ParrySlow: 0.3
+    ParryInvuln: 0.35
+    Hitstop: 0.066
+    HitstopDraw: 0.1
+    HitstopParry: 0.12
+    HitstopHurt: 0.1
+    HitstopCrit: 0.14
+    ScarfSeg: 2.4
+    CameraLead: 36
+    CameraSmooth: 0.16

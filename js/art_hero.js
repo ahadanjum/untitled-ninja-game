@@ -7,9 +7,9 @@
 // The look is the designer's pick "A" (D091, D095): Little Shinobi's band and tail, in the blade's dark purple. (The band-only and
 // knight-silhouette looks they turned down are drawn in design/concepts/kaname-looks-A-B-C.png.)
 // ---------------------------------------------------------------------------
-const INKC = '#0b1236', RIM = '#7fa8e8', BLK = '#07090d';
+const INKC = '#0a0a0e', RIM = '#7fa8e8', BLK = '#07090d';                         // (the outfit is black, D117: it was navy)
 const ROPE = '#b79f78', ROPE_DK = '#4a3e28';                                       // (the dummy's rope bands)
-const BAND = '#5b3cae', BAND_EDGE = '#1f0f45';                                     // the headband, its tail and the sash
+const BAND = '#3a2273', BAND_EDGE = '#150a30', BAND_RGB = '58,34,115';             // the headband, its tail and the sash (a deep violet, D117: it was lighter)
 const CURSE_RGB = '143,77,255';
 const HILT = '#3a2a70', HILT_LT = '#6a52b0', STEEL = '#9aa6b8', SAYA = '#241a46', SAYA_LT = '#4a3a80';
 
@@ -97,7 +97,7 @@ function drawTrail(ctx, P, rx, ry) {
   ctx.save();
   for (const l of lines) {
     const x1 = rx, x0 = rx - dir * len * l.f, gr = ctx.createLinearGradient(x0, 0, x1, 0);
-    gr.addColorStop(0, 'rgba(91,60,174,0)'); gr.addColorStop(1, `rgba(91,60,174,${a})`);
+    gr.addColorStop(0, `rgba(${BAND_RGB},0)`); gr.addColorStop(1, `rgba(${BAND_RGB},${a})`);
     ctx.fillStyle = gr; ctx.beginPath(); ctx.moveTo(x0, l.y); ctx.lineTo(x1, l.y - l.w / 2); ctx.lineTo(x1, l.y + l.w / 2); ctx.closePath(); ctx.fill();
   }
   ctx.restore();
