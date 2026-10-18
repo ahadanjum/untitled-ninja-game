@@ -21,6 +21,21 @@ namespace Kaname.Tests
 
         static GameDriver driver;
 
+        // The Input System drops keyboard events when the application is not the one in front or the Game view has no focus (rules for a person at the
+        // keyboard); a test run cannot count on either, so while a keyboard test runs input is accepted whatever has the focus, and the settings are put back.
+        static InputSettings.EditorInputBehaviorInPlayMode routed;
+        static InputSettings.BackgroundBehavior background;
+        static void RouteAllInputToTheGame()
+        {
+            routed = InputSystem.settings.editorInputBehaviorInPlayMode; background = InputSystem.settings.backgroundBehavior;
+            InputSystem.settings.editorInputBehaviorInPlayMode = InputSettings.EditorInputBehaviorInPlayMode.AllDeviceInputAlwaysGoesToGameView;
+            InputSystem.settings.backgroundBehavior = InputSettings.BackgroundBehavior.IgnoreFocus;
+        }
+        static void RestoreInputRouting()
+        {
+            InputSystem.settings.editorInputBehaviorInPlayMode = routed; InputSystem.settings.backgroundBehavior = background;
+        }
+
         [UnitySetUp]
         public IEnumerator LoadTheStage()
         {
@@ -67,6 +82,7 @@ namespace Kaname.Tests
         public IEnumerator TheKeyboardRunsAndJumpsHimInTheRunningScene()
         {
             var w = driver.World; w.Hero.Place(-3000, 0); w.Cam.X = w.CamPrev = -3000;
+            RouteAllInputToTheGame();
             var kb = InputSystem.AddDevice<Keyboard>("U2 test keyboard");
             try
             {
@@ -80,7 +96,34 @@ namespace Kaname.Tests
                 yield return new WaitForSeconds(1.0f);
                 Assert.IsTrue(w.Hero.OnGround); Assert.AreEqual(0, w.Hero.Vx, 0.01, "and he stops when the keys are let go");
             }
-            finally { InputSystem.RemoveDevice(kb); }
+            finally { InputSystem.RemoveDevice(kb); RestoreInputRouting(); }
+        }
+
+        // U3, end to end: a tap of Shift dashes 128 u; Shift and D together sprint at 336 u/s; letting go of Shift drops him back to a run
+        [UnityTest]
+        public IEnumerator TheKeyboardDashesAndSprintsInTheRunningScene()
+        {
+            var w = driver.World; w.Hero.Place(-3000, 0); w.Cam.X = w.CamPrev = -3000;
+            RouteAllInputToTheGame();
+            var kb = InputSystem.AddDevice<Keyboard>("U3 test keyboard");
+            try
+            {
+                InputSystem.QueueStateEvent(kb, new KeyboardState(Key.LeftShift));
+                yield return new WaitForSeconds(0.1f);
+                InputSystem.QueueStateEvent(kb, new KeyboardState());
+                yield return new WaitForSeconds(0.7f);
+                Assert.AreEqual(128, w.Hero.LastDash, 1.0, "a tap of Shift dashes 128 u");
+                InputSystem.QueueStateEvent(kb, new KeyboardState(Key.D, Key.LeftShift));
+                yield return new WaitForSeconds(1.0f);
+                Assert.AreEqual(336, w.Hero.Vx, 0.01, "Shift and D together sprint");
+                InputSystem.QueueStateEvent(kb, new KeyboardState(Key.D));
+                yield return new WaitForSeconds(0.3f);
+                Assert.AreEqual(240, w.Hero.Vx, 0.01, "and letting go of Shift drops him back to a run");
+                InputSystem.QueueStateEvent(kb, new KeyboardState());
+                yield return new WaitForSeconds(0.5f);
+                Assert.AreEqual(0, w.Hero.Vx, 0.01);
+            }
+            finally { InputSystem.RemoveDevice(kb); RestoreInputRouting(); }
         }
 
         [Test]

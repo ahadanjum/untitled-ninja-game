@@ -58,6 +58,7 @@ namespace Kaname.Game
             reel.BeforeStep(World, hero.Look, dt);
             World.Step(dt, input.State);
             if (World.Hero.JustJumped) hero.Look.Kick(-0.28);                 // a stretch as he leaves the ground
+            if (World.Hero.JustDashed) hero.Look.Kick(-0.12);                 // a small stretch as a dash leaves
             hero.Fill(World.Hero);
             reel.Tell(hero.Input);
             hero.Advance(dt);

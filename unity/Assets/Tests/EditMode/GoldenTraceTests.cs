@@ -28,7 +28,7 @@ namespace Kaname.Tests
     public class GoldenTraceTests
     {
         // the rungs the C# simulation has reached: add each one here when its port is done
-        static readonly HashSet<string> Ported = new HashSet<string> { "U0", "U2" };
+        static readonly HashSet<string> Ported = new HashSet<string> { "U0", "U2", "U3" };
         const double Tolerance = 0.001;
 
         static string TraceDir => Path.GetFullPath(Path.Combine(Application.dataPath, "..", "..", "traces"));
@@ -94,6 +94,8 @@ namespace Kaname.Tests
                 case "camX": return w.Cam.X; case "camV": return w.Cam.V; case "face": return h.Face;
                 case "coyote": return h.Coyote; case "jumpBuf": return h.JumpBuf; case "jumping": return h.Jumping ? 1 : 0;
                 case "apex": return h.Apex; case "lastJump": return h.LastJump; case "justLanded": return h.JustLanded ? 1 : 0;
+                case "dashT": return h.DashT; case "dashCd": return h.DashCd; case "canDash": return h.CanDash ? 1 : 0; case "dashBuf": return h.DashBuf;
+                case "dashDir": return h.DashDir; case "lastDash": return h.LastDash;
                 default: throw new ArgumentException("the trace records a state the C# does not have yet: " + key);
             }
         }

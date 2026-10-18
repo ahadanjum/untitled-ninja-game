@@ -2,9 +2,10 @@ using System;
 
 namespace Kaname.Sim
 {
-    // Kaname's body (js/hero.js). Rung U2 has the run and the jump: a box that accelerates, turns and stops on the numbers of the design, jumps (a variable
-    // height, coyote time, a buffered press), falls and lands on the stage and bumps its head. The dash and sprint arrive in U3, the sword and pogo
-    // in U4, the charge and draw in U5, health and the parry in U6, each one proved against the recorded traces. Nothing here reads or writes anything
+    // Kaname's body (js/hero.js). Rungs U2 and U3 have the run, the jump, the dash and the sprint: a box that accelerates, turns and stops on the numbers of
+    // the design, jumps (a variable height, coyote time, a buffered press), dashes (a burst of 128 u, one per jump in the air) and sprints (hold dash
+    // and a direction), falls and lands on the stage and bumps its head. The sword and pogo arrive in U4, the charge and draw in U5, health and the
+    // parry in U6, each one proved against the recorded traces. Nothing here reads or writes anything
     // drawn: the simulation is numbers, and the look reads them.
     public sealed class Hero
     {
@@ -27,6 +28,16 @@ namespace Kaname.Sim
         public double AirStartY, Apex;     // measured: how high above where his feet left the ground he has been
         public double LastJump;            // and how high the last jump went
 
+        // the dash and the sprint
+        public double DashT;               // time left in a dash (a tap of the dash button: a burst of 640 u/s for 0.2 s, flat, untouchable from U6)
+        public double DashCd;              // time until the next dash may start
+        public double DashBuf;             // time left on a dash press made too early
+        public bool CanDash = true;        // a dash is ready (in the air: one per jump, refilled on landing)
+        public int DashDir = 1;            // the way the dash goes
+        public double DashX0, LastDash;    // measured: where the last dash began and how far it went
+        public bool JustDashed;            // true for the step on which a dash began (the look stretches him)
+        public bool TrailActive;           // dashing or lunging this step (the look draws speed lines from it)
+
         public bool Scripted;              // the pose reel (a test aid for judging his look) drives his speed itself, so the run code leaves it alone
 
         public Hero(Tuning tuning, double x = 0, double y = 0)
@@ -34,7 +45,7 @@ namespace Kaname.Sim
             k = tuning;
             Cx = Px = x; Y = Py = y;
             W = k.BodyW; H = k.BodyH;
-            Coyote = k.Coyote; AirStartY = y;
+            Coyote = k.Coyote; AirStartY = y; DashX0 = x;
         }
 
         public Box Box() => new Box(Cx - W / 2, Y - H, W, H);
@@ -44,14 +55,27 @@ namespace Kaname.Sim
         {
             Px = Cx; Py = Y;
             bool wasGround = OnGround;
-            JustJumped = false;
+            JustJumped = false; JustDashed = false;
             IControls inp = controls;                                   // (while stunned or down he will hear NoControls: U6)
-            double mx = inp.MoveX();
+            double mx = inp.MoveX(), dashHeld = inp.Held(Act.Dash) ? 1 : 0;
 
-            // ---- horizontal: the keys are a full push, the stick is analog (sprint, the guard and the charge change the top speed: U3, U5, U6) ----
-            if (!Scripted)
+            // ---- dash: a press starts it (a press up to 0.1 s early is kept); on the ground only the cooldown limits it, in the air it is one per jump ----
+            DashCd = Math.Max(0, DashCd - dt);
+            DashBuf = inp.Hit(Act.Dash) ? k.DashBuffer : Math.Max(0, DashBuf - dt);
+            if (DashBuf > 0 && DashCd <= 0 && CanDash && DashT <= 0) StartDash(mx);    // (a dash cuts a swing's recovery short, never a blade still looking for its mark: U4)
+            bool dashing = DashT > 0, dashEnds = false;
+            TrailActive = dashing;                                                      // (and a lunge: U5)
+
+            // ---- horizontal: the keys are a full push, the stick is analog; holding dash raises the top speed (sprint) (the guard and the charge slow it: U5, U6) ----
+            if (Scripted) { }
+            else if (dashing)
             {
-                double target = mx * k.Run;
+                DashT -= dt; Vx = DashDir * k.DashSpeed;
+                if (DashT <= 1e-6) { DashT = 0; dashEnds = true; }
+            }
+            else
+            {
+                double target = mx * (dashHeld > 0 ? k.Sprint : k.Run);
                 double acc;
                 if (mx == 0) acc = wasGround ? k.GroundDecel : k.AirDecel;
                 else if (Vx * mx < 0) acc = wasGround ? k.Turn : k.AirAccel * 1.4;
@@ -68,11 +92,13 @@ namespace Kaname.Sim
             {
                 Vy = -k.JumpV; JumpBuf = 0; Coyote = 0; Jumping = true;
                 OnGround = false; AirStartY = Y; Apex = 0;
-                JustJumped = true;                                        // (a jump also cuts a dash short: U3)
+                JustJumped = true;
+                if (dashing) { DashT = 0; dashEnds = true; }                          // a jump cuts a dash short
             }
             if (Jumping && Vy < 0 && !inp.Held(Act.Jump)) { Vy *= k.JumpCut; Jumping = false; }
             if (Vy >= 0) Jumping = false;
-            Vy = Math.Min(Vy + k.Grav * dt, k.FallMax);                  // gravity, capped at the fall speed (a dash and a lunge are flat: U3, U5)
+            if (dashing && !JustJumped) Vy = wasGround ? k.Grav * dt : 0;               // a dash is flat (on the ground it stays pressed to the floor)
+            else Vy = Math.Min(Vy + k.Grav * dt, k.FallMax);                           // gravity, capped at the fall speed (a lunge is flat too: U5)
 
             // ---- move and collide: x first, then y ----
             var solids = Stage.Solids;
@@ -85,6 +111,7 @@ namespace Kaname.Sim
                 if (Vx > 0) Cx = s.X - W / 2; else if (Vx < 0) Cx = s.X + s.W + W / 2;
                 HitX = Mathx.Sign(Vx); Vx = 0;
             }
+            if (HitX != 0 && dashing) { DashT = 0; dashEnds = true; }                   // a wall ends a dash
             OnGround = false; JustLanded = false;
             Y += Vy * dt;
             for (int i = 0; i < solids.Count; i++)
@@ -95,10 +122,26 @@ namespace Kaname.Sim
                 else if (Vy < 0) { Y = s.Y + s.H + H; Vy = 0; Jumping = false; }     // a head bump
             }
 
+            if (dashEnds)                                                                 // it ends crisply; with dash still held and the push kept, it runs on into a sprint
+            {
+                if (HitX == 0) Vx = DashDir * (dashHeld > 0 && mx == DashDir ? k.Sprint : k.DashExit);
+                LastDash = Math.Abs(Cx - DashX0);
+            }
+
             // ---- measurements ----
             if (wasGround && !OnGround && !Jumping) { AirStartY = Y; Apex = 0; }       // walked off an edge
             if (!OnGround) Apex = Math.Max(Apex, AirStartY - Y);
             if (!wasGround && OnGround) { JustLanded = true; LastJump = Apex; }
+            if (OnGround) CanDash = true;                                                 // landing refills the air dash
+        }
+
+        // a dash: the way he pushes (the way he faces if he pushes nothing), flat, cancelling a rise or a fall
+        void StartDash(double mx)
+        {
+            DashDir = mx != 0 ? Mathx.Sign(mx) : Face; Face = DashDir;
+            DashT = k.DashTime; DashCd = k.DashCooldown; CanDash = false; DashBuf = 0;
+            Jumping = false; Vy = 0; DashX0 = Cx;
+            JustDashed = true;
         }
 
         // put him somewhere, standing still with nothing held (tests, and the Toss key)

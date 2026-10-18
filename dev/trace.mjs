@@ -89,7 +89,7 @@ const preamble = `(() => {
 // ACTIONS is the order of the bits in "held" and "hit": the C# side (Act in Kaname.Sim) must list them in the same order.
 const recorder = `(name) => {
   const ACTIONS = ['left', 'right', 'up', 'down', 'jump', 'dash', 'attack', 'parry'];
-  const KEYS = ['cx', 'y', 'vx', 'vy', 'ground', 'hitX', 'landVy', 'camX', 'camV', 'face', 'coyote', 'jumpBuf', 'jumping', 'apex', 'lastJump', 'justLanded'];
+  const KEYS = ['cx', 'y', 'vx', 'vy', 'ground', 'hitX', 'landVy', 'camX', 'camV', 'face', 'coyote', 'jumpBuf', 'jumping', 'apex', 'lastJump', 'justLanded', 'dashT', 'dashCd', 'canDash', 'dashBuf', 'dashDir', 'lastDash'];
   const sc = window.__scenarios.find(s => s.name === name);
   dispatchEvent(new Event('blur')); window.__fakePad = null; resetHero(); Input.endStep();      // a clean start, no steps taken
   const P = G.hero, su = sc.setup || {};
@@ -106,7 +106,7 @@ const recorder = `(name) => {
     let h = 0, e = 0; ACTIONS.forEach((a, b) => { if (Input.held(a)) h |= 1 << b; if (Input.hit(a)) e |= 1 << b; });
     held.push(h); hit.push(e); moveX.push(Input.moveX());
     step(STEP); Input.endStep();
-    rows.push(P.cx, P.y, P.vx, P.vy, P.onGround ? 1 : 0, P.hitX, P.landVy, G.cam.x, G.cam.v, P.face, P.coyote, P.jumpBuf, P.jumping ? 1 : 0, P.apex, P.lastJump, P.justLanded ? 1 : 0);
+    rows.push(P.cx, P.y, P.vx, P.vy, P.onGround ? 1 : 0, P.hitX, P.landVy, G.cam.x, G.cam.v, P.face, P.coyote, P.jumpBuf, P.jumping ? 1 : 0, P.apex, P.lastJump, P.justLanded ? 1 : 0, P.dashT, P.dashCd, P.canDash ? 1 : 0, P.dashBuf, P.dashDir, P.lastDash);
   }
   return { format: 1, name: sc.name, rung: sc.rung, note: sc.note, generator: 'dev/trace.mjs', step: STEP, actions: ACTIONS, setup, keys: KEYS, frames: sc.frames, held, hit, moveX, rows };
 }`;

@@ -44,3 +44,7 @@ unity/crashlytics-build.properties
 unity/sysinfo.txt
 unity/**/[Aa]ssets/[Ss]treamingAssets/aa.meta
 unity/**/[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# the Unity Test Framework's temporary scene, left behind by an interrupted test run
+unity/Assets/InitTestScene*.unity
+unity/Assets/InitTestScene*.unity.meta
