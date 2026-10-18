@@ -4,6 +4,8 @@ using Kaname.Game;
 using Kaname.Sim;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 
@@ -58,6 +60,27 @@ namespace Kaname.Tests
             yield return new WaitForSeconds(1.2f);
             Assert.IsTrue(w.Hero.OnGround); Assert.AreEqual(0, w.Hero.Y);
             Assert.AreEqual(336, w.Cam.X, 0.5, "the camera leads him by 36 u");
+        }
+
+        // U2, end to end: a keyboard pressed through the Input System reaches the body in the running scene
+        [UnityTest]
+        public IEnumerator TheKeyboardRunsAndJumpsHimInTheRunningScene()
+        {
+            var w = driver.World; w.Hero.Place(-3000, 0); w.Cam.X = w.CamPrev = -3000;
+            var kb = InputSystem.AddDevice<Keyboard>("U2 test keyboard");
+            try
+            {
+                InputSystem.QueueStateEvent(kb, new KeyboardState(Key.D));                    // (queued: the player loop processes it with the frame, as for a real key)
+                yield return new WaitForSeconds(0.5f);
+                Assert.AreEqual(240, w.Hero.Vx, 0.01, "holding D runs him at the top speed"); Assert.Greater(w.Hero.Cx, -3000 + 60);
+                InputSystem.QueueStateEvent(kb, new KeyboardState(Key.D, Key.Space));
+                yield return new WaitForSeconds(0.2f);
+                Assert.IsFalse(w.Hero.OnGround, "Space jumps"); Assert.Less(w.Hero.Y, -20);
+                InputSystem.QueueStateEvent(kb, new KeyboardState());
+                yield return new WaitForSeconds(1.0f);
+                Assert.IsTrue(w.Hero.OnGround); Assert.AreEqual(0, w.Hero.Vx, 0.01, "and he stops when the keys are let go");
+            }
+            finally { InputSystem.RemoveDevice(kb); }
         }
 
         [Test]

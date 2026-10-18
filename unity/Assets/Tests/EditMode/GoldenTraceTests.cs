@@ -10,7 +10,7 @@ namespace Kaname.Tests
     // The proof of the port: traces/*.json were recorded from the JavaScript game (dev/trace.mjs, tag js-prototype-rung7): for every
     // 60 Hz step, what the controls said and the state that came out. This replays the recorded controls through the C# simulation and requires
     // the same state, to within 0.001 u, at every step. If the traces match, the feel matches.
-    [Serializable] public class TraceSetup { public double cx, y, vx, vy, camX; public int face; public bool onGround; }
+    [Serializable] public class TraceSetup { public double cx, y, vx, vy, camX, coyote; public int face; public bool onGround; }
 
     [Serializable]
     public class Trace
@@ -28,7 +28,7 @@ namespace Kaname.Tests
     public class GoldenTraceTests
     {
         // the rungs the C# simulation has reached: add each one here when its port is done
-        static readonly HashSet<string> Ported = new HashSet<string> { "U0" };
+        static readonly HashSet<string> Ported = new HashSet<string> { "U0", "U2" };
         const double Tolerance = 0.001;
 
         static string TraceDir => Path.GetFullPath(Path.Combine(Application.dataPath, "..", "..", "traces"));
@@ -65,7 +65,7 @@ namespace Kaname.Tests
 
             var world = new World(new Tuning());
             var h = world.Hero; var s = t.setup;
-            h.Cx = h.Px = s.cx; h.Y = h.Py = s.y; h.Vx = s.vx; h.Vy = s.vy; h.Face = s.face; h.OnGround = s.onGround;
+            h.Cx = h.Px = s.cx; h.Y = h.Py = s.y; h.Vx = s.vx; h.Vy = s.vy; h.Face = s.face; h.OnGround = s.onGround; h.Coyote = s.coyote;
             world.Cam = new Spring { X = s.camX, V = 0 }; world.CamPrev = s.camX;
 
             var controls = new ControlState();
@@ -75,14 +75,27 @@ namespace Kaname.Tests
                 controls.Load(t.held[i], t.hit[i], t.moveX[i]);
                 world.Step(Mathx.Step, controls);
                 controls.EndStep();
-                var got = new[] { h.Cx, h.Y, h.Vx, h.Vy, h.OnGround ? 1 : 0, h.HitX, h.LandVy, world.Cam.X, world.Cam.V, h.Face };
                 for (int k = 0; k < n; k++)
                 {
-                    double err = Math.Abs(got[k] - t.rows[i * n + k]);
-                    if (err > worst) { worst = err; worstAt = $"step {i + 1}, {t.keys[k]}: got {got[k]}, JavaScript had {t.rows[i * n + k]}"; }
+                    double got = Read(t.keys[k], world, h), err = Math.Abs(got - t.rows[i * n + k]);
+                    if (err > worst) { worst = err; worstAt = $"step {i + 1}, {t.keys[k]}: got {got}, JavaScript had {t.rows[i * n + k]}"; }
                 }
             }
             Assert.LessOrEqual(worst, Tolerance, $"{name}: the C# simulation drifts from the JavaScript game, worst at {worstAt}");
+        }
+
+        // the recorded state, by name: what the C# simulation has to reproduce
+        static double Read(string key, World w, Hero h)
+        {
+            switch (key)
+            {
+                case "cx": return h.Cx; case "y": return h.Y; case "vx": return h.Vx; case "vy": return h.Vy;
+                case "ground": return h.OnGround ? 1 : 0; case "hitX": return h.HitX; case "landVy": return h.LandVy;
+                case "camX": return w.Cam.X; case "camV": return w.Cam.V; case "face": return h.Face;
+                case "coyote": return h.Coyote; case "jumpBuf": return h.JumpBuf; case "jumping": return h.Jumping ? 1 : 0;
+                case "apex": return h.Apex; case "lastJump": return h.LastJump; case "justLanded": return h.JustLanded ? 1 : 0;
+                default: throw new ArgumentException("the trace records a state the C# does not have yet: " + key);
+            }
         }
 
         static Trace Load(string name) => JsonUtility.FromJson<Trace>(File.ReadAllText(Path.Combine(TraceDir, name + ".json")));

@@ -115,11 +115,11 @@ namespace Kaname.Tests
         }
 
         [Test]
-        public void ASidewaysSpeedStopsAtAWall()
+        public void RunningIntoAWallStopsHim()
         {
-            var w = NewWorld(); w.Hero.Place(300, 0, 400, 0);                          // running at the 1-tile pillar (x 420..480), on the ground
+            var w = NewWorld(); w.Hero.Place(300, 0); var c = new ControlState { Push = 1 }; c.SetHeld(Act.Right, true);   // running at the 1-tile pillar (x 420..480), on the ground
             int hit = 0;
-            for (int i = 0; i < 40; i++) { w.Step(Mathx.Step, NoControls.Instance); if (w.Hero.HitX != 0) hit = w.Hero.HitX; }
+            for (int i = 0; i < 80; i++) { w.Step(Mathx.Step, c); c.EndStep(); if (w.Hero.HitX != 0) hit = w.Hero.HitX; }
             Assert.AreEqual(1, hit);
             Assert.AreEqual(420 - 8, w.Hero.Cx, 1e-9);                                  // his right edge against the pillar's left
             Assert.AreEqual(0, w.Hero.Vx);
@@ -157,7 +157,7 @@ namespace Kaname.Tests
             Assert.AreEqual(36, w.Cam.X, 0.01);
             var c = new ControlState { Push = -1 }; Run(w, 1, c); c.Push = 0;
             Run(w, 180, c);
-            Assert.AreEqual(-36, w.Cam.X, 0.01, "after he turns, the camera swings to lead the other way");
+            Assert.AreEqual(w.Hero.Cx - 36, w.Cam.X, 0.01, "after he turns, the camera swings to lead the other way (he slid a little as he turned)");
         }
 
         [Test]

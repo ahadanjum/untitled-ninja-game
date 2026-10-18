@@ -57,6 +57,7 @@ namespace Kaname.Game
             if (input.State.DevHit(Dev.Pose)) reel.Next(World, hero.Look);
             reel.BeforeStep(World, hero.Look, dt);
             World.Step(dt, input.State);
+            if (World.Hero.JustJumped) hero.Look.Kick(-0.28);                 // a stretch as he leaves the ground
             hero.Fill(World.Hero);
             reel.Tell(hero.Input);
             hero.Advance(dt);

@@ -3,7 +3,7 @@ using Kaname.Sim;
 
 namespace Kaname.Game
 {
-    public enum PoseKind { Stand, Run, Sprint, Dash, Jump, Sword, SwordUp, SwordDown, Draw, Charge, Guard, Hurt, Down }
+    public enum PoseKind { Off, Stand, Run, Sprint, Dash, Jump, Sword, SwordUp, SwordDown, Draw, Charge, Guard, Hurt, Down }
 
     // A test aid for judging Kaname's LOOK before his mechanics exist (the P key): it makes him do each thing the look has a pose for, on a loop,
     // by driving his body and by telling the look what the mechanics would say (a dash, a swing, a charge, a guard, a hit). Nothing here is a
@@ -11,10 +11,10 @@ namespace Kaname.Game
     // these by playing.
     public sealed class PoseReel
     {
-        public PoseKind Kind = PoseKind.Stand;
+        public PoseKind Kind = PoseKind.Off;                // off: the player plays
         public static readonly string[] Names =
         {
-            "standing", "running", "sprinting", "dashing", "jumping", "sword: forward cuts", "sword: up strike", "sword: down strike (in the air)",
+            "off: you play", "standing", "running", "sprinting", "dashing", "jumping", "sword: forward cuts", "sword: up strike", "sword: down strike (in the air)",
             "the draw", "charging", "the parry's guard", "hurt (blinking)", "down",
         };
         public string Name => Names[(int)Kind];
@@ -35,6 +35,8 @@ namespace Kaname.Game
         public void BeforeStep(World w, HeroLook look, double dt)
         {
             var h = w.Hero; double ph;
+            h.Scripted = Kind != PoseKind.Off;                // when the reel is on it sets his speed itself; off, the player's controls run him
+            if (Kind == PoseKind.Off) return;                 // off: nothing is driven, nothing is told
             dashT = charge = parryT = invuln = deadT = 0; trail = false; atk = null;
             t += dt;
             switch (Kind)
@@ -91,6 +93,7 @@ namespace Kaname.Game
         // after the simulation's step: what the mechanics would tell the look
         public void Tell(LookInput li)
         {
+            if (Kind == PoseKind.Off) return;
             li.DashT = dashT; li.TrailActive = trail; li.Atk = atk; li.Charge = charge; li.ParryT = parryT; li.Invuln = invuln; li.DeadT = deadT;
         }
 
