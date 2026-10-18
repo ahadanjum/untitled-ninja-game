@@ -8,7 +8,7 @@ Kaname, who runs, jumps, dashes, sprints, swings a sword, pogoes off test dummie
 (keyboard or PlayStation pad); `node dev/run.mjs` runs the tests. Everything else is still design: we are deciding how the game plays, then every area,
 path and shortcut is planned on paper, each with a reason. Then we build.
 
-**Next: the Unity port (D112).** The real game will be built in Unity on the free tier; this JavaScript prototype stays as its spec. The plan is in `docs/UNITY-PORT.md`.
+**GitHub:** <https://github.com/ahadanjum/untitled-ninja-game> (public, all rights reserved). **Next: the Unity port (D112).** The real game will be built in Unity on the free tier; this JavaScript prototype stays as its spec. The plan is in `docs/UNITY-PORT.md`.
 
 | Where | What |
 |---|---|

@@ -1,0 +1,45 @@
+# Normalise text files to LF, and treat Unity's YAML assets as text so they diff and merge.
+* text=auto eol=lf
+
+*.cs text diff=csharp
+*.js text
+*.md text
+*.json text
+*.svg text
+*.html text
+*.py text
+*.shader text
+*.cginc text
+*.hlsl text
+*.uss text
+*.uxml text
+*.asmdef text
+*.asmref text
+*.inputactions text
+
+# Unity YAML (set Edit > Project Settings > Editor > Asset Serialization to Force Text, and Version Control to Visible Meta Files)
+*.unity text merge=unityyamlmerge eol=lf
+*.prefab text merge=unityyamlmerge eol=lf
+*.asset text merge=unityyamlmerge eol=lf
+*.mat text merge=unityyamlmerge eol=lf
+*.anim text merge=unityyamlmerge eol=lf
+*.controller text merge=unityyamlmerge eol=lf
+*.meta text merge=unityyamlmerge eol=lf
+
+# Binary art and audio. When the project grows large binaries, enable Git LFS (install git-lfs, then uncomment the lfs lines).
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.psd binary
+*.psb binary
+*.wav binary
+*.mp3 binary
+*.ogg binary
+*.fbx binary
+*.pkg binary
+#*.png filter=lfs diff=lfs merge=lfs -text
+#*.psd filter=lfs diff=lfs merge=lfs -text
+#*.psb filter=lfs diff=lfs merge=lfs -text
+#*.wav filter=lfs diff=lfs merge=lfs -text
+#*.fbx filter=lfs diff=lfs merge=lfs -text

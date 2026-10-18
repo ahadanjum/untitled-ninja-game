@@ -1,6 +1,6 @@
 # The Unity port: plan (D112)
 
-**Status (2026-10-17): planned. Nothing has been downloaded or installed yet.** The designer wants the real game built in Unity on the free
+**Status (2026-10-17): setup under way.** Done: the JavaScript prototype is committed and tagged (`db0475d`, `js-prototype-rung7`); Unity Hub 3.22.3, the Unity CLI 1.0.0-beta.13 (Homebrew) and Unity's Claude Code plugin 0.1.8-beta (32 skills, user scope) are installed. The Editor **6000.3.26f1** is installed (Apple silicon, 9.3 GB; D114); the Hub's offer of 6000.6.6f1 was declined and removed. The designer has signed in to Unity Hub. The repository is public on GitHub (D113). **Next:** activate the Personal license if the Hub has not, create the project in `unity/`, `unity pipeline install`, `unity status`; then rung U0. The designer wants the real game built in Unity on the free
 tier, and wants it started now, while the character's core mechanics are being built. The JavaScript feel ladder (rungs 0–7, 82 tests) stays as
 the **executable spec** until Unity matches it.
 
@@ -60,12 +60,13 @@ the **executable spec** until Unity matches it.
 
 After U7 the feel ladder continues (rung 8, the blade's charge, and on) **only in Unity**, and the world, rooms and bosses are built there.
 
-## Decisions needed from the designer
-1. **A git checkpoint** of the JavaScript prototype now (one commit and a tag)?
-2. **Unity 6.3 LTS, 6000.3.26f1**, the newest patch of the newest LTS: OK?
-3. **Where the project lives:** `untitled-ninja-game/unity/` in this repo (recommended: one repo, the spec and the port side by side), or its own repo?
-4. **Template:** 2D with the Universal Render Pipeline (recommended: it has 2D lights and bloom for the blade's glow).
+## Decisions
+1. **A git checkpoint** of the JavaScript prototype: **yes, done** (one local commit and a tag, nothing pushed).
+2. **Unity 6.3 LTS, 6000.3.26f1**, the newest patch of the newest LTS: **yes**.
+3. **Where the project lives:** **`untitled-ninja-game/unity/`** in this repo: one repo, the spec and the port side by side.
+4. **Template:** 2D with the Universal Render Pipeline (my recommendation, not yet confirmed: it has 2D lights and bloom for the blade's glow).
 5. **The MCP server:** skip it for now (the plugin's CLI route is enough); add it later only if needed.
+6. **The plugin:** **yes, installed** (user scope; `claude plugin disable unity@unity-agent-plugin` turns it off).
 
 ## Risks and fallbacks
 - The Unity CLI is in beta (1.0.0-beta.13) and the official plugin is new (September 2026). *Fallback:* Unity Hub for installing, and Coplay's MCP for Unity for driving the Editor.
