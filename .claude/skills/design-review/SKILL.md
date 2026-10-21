@@ -15,9 +15,18 @@ Borrowed in spirit from a studio-template `design-review`, rebuilt to this repo:
 brief (bring a recommendation, not a menu — rule 3).
 
 ## When to use
-- A brief has been written (or revised) and is about to be authorized for implementation.
-- The designer asks whether a brief is ready to hand to Sonnet.
-- A brief came back with notes and you want to confirm the revision closed them.
+- A **substantial new feature**, an **architecture change**, or an **ambiguous brief** is about to be authorized for implementation.
+- The designer asks whether a brief is ready to hand to Sonnet, or a revised brief must close earlier notes.
+
+## When to skip
+- A minor adjustment already covered by an approved brief (a tuning pass, a colour or width tweak inside its stated bounds, a bug fix
+  against its acceptance criteria). Implement it and run `/gate-check fast`.
+- A brief already reviewed whose only change is wording. One formal review per brief revision, not per iteration.
+
+## Read narrowly
+Read the brief, the D-numbers it cites (grep `design/DECISIONS.md` for them, plus the conflicts C01–C22 it touches), the section of
+`COMBAT_ANIMATION.md` it implements, and the files it names. Open the Bible or WORLD_MAP only when the brief touches narrative or
+topology. Never reread the whole package for a small task.
 
 ## Input
 The brief's path (`/design-review docs/briefs/IMPLEMENTATION_001_TASK_2B.md`). If none is given, take the most recent brief in
@@ -44,4 +53,5 @@ A verdict — **ready to implement** / **ready with notes** / **not ready** — 
 - **Blockers** (frozen files touched, a design call made canonical, an untestable acceptance criterion).
 - **Notes** (wording, missing edge cases, a criterion that needs a measurable form).
 - **Questions for the designer** (anything that is a taste call).
-Keep it to findings and recommendations; the brief's author (Opus) revises it, the designer authorizes it, Sonnet builds it.
+Keep it to findings and recommendations, a screen or less for a small brief; the brief's author (Opus) revises it, the designer
+authorizes it, Sonnet builds it.

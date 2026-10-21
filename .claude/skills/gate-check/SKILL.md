@@ -1,57 +1,55 @@
 ---
 name: gate-check
-description: Before handing a rung or a polish task to the designer, or before calling anything done, run a readiness verdict — PASS / CONCERNS / FAIL — against the brief's acceptance criteria and the repo's four levels of evidence. Enforces "never call it done because it compiles."
+description: Readiness verdict — PASS / CONCERNS / FAIL — for a rung or a polish task before it goes to the designer. FAST for low-risk iteration (build, affected tests, diff scope, one render); FULL at milestone completion (whole suites, the 73 traces, frozen boundaries, docs). Enforces "never call it done because it compiles."
 user_invocable: true
 ---
 
 # Gate check: is this ready for the designer?
 
-A formal readiness verdict for one rung (U-number) or one polish task, so "is this ready to hand over?" stops being a judgment made fresh
-each time. It checks the thing against its brief and against the repo's four levels of evidence, and it is honest about the one level only
-the designer can give.
-
-Borrowed in spirit from a studio-template `gate-check`, rebuilt to this repo: no production stages, no YAML config — just the brief, the
-tests, the traces and the screenshots this project already keeps. The verdict is advisory; the sign-off is always the designer's (rule 1,
-D081).
-
-## When to use
-- A task or rung is built and you are about to say it is ready for the designer's hands.
-- Before a milestone commit.
-- Any time you are tempted to call something done — run this first.
+A readiness verdict for one rung (U-number) or one polish task, checked against its brief and the repo's four levels of evidence, honest
+about the one level only the designer can give. Advisory; the sign-off is always the designer's (rule 1, D081).
 
 ## Input
-The rung or task (`/gate-check U4` or `/gate-check task 2b`). If none is given, infer from the latest `design/DECISIONS.md` entry and the
-active brief in `docs/briefs/`, and say which you took.
+`/gate-check fast task 3` or `/gate-check full U4`. No mode given: **FAST** for an iteration inside an authorized task, **FULL** when the
+task or milestone is about to be called complete. No task given: infer it from the active brief in `docs/briefs/` and say which.
 
-## The four levels of evidence (the repo's own ladder)
-Check each and give it a line:
+## Step 0, both modes: the frozen boundary (a blocker, never a FAST shortcut)
+```
+git status --porcelain -- unity/Assets/Scripts/Sim traces js dev
+git diff --stat <base>..HEAD -- unity/Assets/Scripts/Sim traces js dev
+```
+plus the tuning asset if the brief names it. During the polish milestone these must be empty for a look-only task (rule 10, D124). If
+anything there moved that the brief does not authorize: **stop, FAIL, switch to FULL**, and tell the designer. Never wave it through.
 
-1. **Build** — the suite is green and nothing throws. Run `node dev/run.mjs` (and, for Unity work, `unity test unity --mode EditMode`).
-   Report the real counts; never infer green from "it compiles".
-2. **Behavior** — there is a test that drives the new mechanic under repeatable inputs (one per new mechanic). Name it. For Unity work the
-   73 golden traces must still replay to 0.001 u: run `node dev/trace.mjs --check` and the replay tests, and say so explicitly.
-3. **Presentation** — a screenshot was actually looked at (`test-results/index.html`, or the Unity strike/pose sheets under
-   `unity/Logs/`). Say what was seen, not that one exists.
-4. **Player experience** — only the designer with the real controller can judge feel. State plainly what still needs their hands, and
-   **never claim an Editor playtest that did not happen** (rule 10).
+## FAST (low-risk iteration)
+1. **Build.** The project compiles (the Unity test run does it; `node dev/run.mjs --grep <area>` for JS).
+2. **Affected tests only.** `unity test unity --mode EditMode --affected` or `--filter <Class>` for the classes the change reaches (e.g.
+   `SlashTests`, `SwordTests`, `LookTests`); report the real counts. Not the full suite, not the traces, unless step 0 tripped.
+3. **Diff scope.** `git diff --stat`: only the files the brief allows; no drive-by edits, no tolerance or threshold loosened.
+4. **One render looked at.** The relevant sheet (Kaname > Render the strike sheet / pose sheet, or `test-results/index.html`). Say what
+   was seen, not that it exists. Reuse an existing valid render of the unchanged baseline; do not re-render it.
+5. **What needs the designer's Unity playtest**, in one or two lines.
 
-## Also check (the repo's guard rails)
-- **Acceptance criteria.** Read the task's brief in `docs/briefs/` and tick each criterion off against what was built. Any unmet one is a
-  blocker.
-- **Nothing frozen was touched.** During the polish milestone, confirm `Scripts/Sim/`, the tuning asset, `traces/`, `js/` and `dev/` are
-  untouched for a look-only task (`git status --porcelain` on those paths should be empty). A violation is an automatic FAIL.
-- **The colour law.** Nothing new on Kaname is red or yellow; the blade's energy is violet (rule 5). If a test for this exists, it must be
-  green.
-- **Docs are true.** Any doc the change made stale is fixed in the same change (consider running `/sync-decision`).
-- **No open design choice was made canonical.** If the build quietly decided something that is the designer's call, that is a CONCERN to
-  surface, not to bury (rules 3, 10).
+Verdict line: `FAST PASS / CONCERNS / FAIL · tests X/Y (<filter>) · diff: <files> · seen: <render>`. A few lines, no essay.
 
-## Verdict
-End with one of:
-- **PASS** — every level has real evidence, the acceptance criteria are met, nothing frozen moved. Say what still needs the designer's
-  controller (level 4 is theirs).
-- **CONCERNS** — buildable and mostly there, but with named risks or gaps the designer should accept knowingly before advancing.
-- **FAIL** — a blocker: a missing test, a red suite, a broken trace, a frozen file touched, or an unmet acceptance criterion.
+## FULL (milestone or task completion)
+1. **Complete suites:** `node dev/run.mjs`, `unity test unity --mode EditMode`, and PlayMode where the brief lists it. Real counts.
+2. **All 73 golden traces:** `node dev/trace.mjs --check` and the Unity replay (`GoldenTraceTests`) green, 73 cases in the result file.
+3. **Frozen boundaries** (step 0 over the whole task's commits) and **every acceptance criterion** in the brief ticked against what was
+   built; an unmet one is a blocker.
+4. **The colour law:** nothing new on Kaname is red or yellow (rule 5); its test green.
+5. **Docs true:** `docs/UNITY-PORT.md`, `CLAUDE.md` and the brief's "Docs, in the same change" list updated (`/sync-decision` if a
+   D-number moved).
+6. **Visual evidence reviewed:** before-and-after sheets, plain and with hitboxes, at game zoom (3 px per u), by day and night where it
+   matters.
+7. **No open design choice made canonical** (rules 3, 10): a CONCERN to surface, not to bury.
 
-List blockers and required artifacts explicitly. Report counts and test names as they really are; if a step was skipped, say it was
-skipped.
+End with two separate lines: **Technical readiness: PASS / CONCERNS / FAIL** and **Designer approval: pending the controller** (or "given
+on <date>, D-number" if it was). The second is never inferred from the first.
+
+## Both modes
+- Run each suite once per gate. Re-run only with a concrete reason (a fix landed, a flaky result, inconsistent evidence).
+- If a valid measurement from this change already exists (same commit, same files), cite it instead of reproducing it.
+- An independent Opus re-run is for substantial changes, a failure, or evidence that disagrees, not for every Sonnet run.
+- **Never claim an Editor playtest that did not happen.** Automated tests and rendered sheets are not play.
+- If a step was skipped, say it was skipped and why.

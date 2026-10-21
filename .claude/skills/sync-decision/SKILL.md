@@ -16,10 +16,14 @@ traces, `dev/tests.js`) with no external scaffold. It **proposes**; it does not 
 (rule 10, D120: Opus plans and reviews, Sonnet implements an approved change).
 
 ## When to use
-- A new or revised D-number has just been agreed and needs to land in every doc that mentions it.
-- A tuning number changed (and remember: "retune on purpose only, and change the test in the same change").
-- A rule changed (the colour law, the controls, what is frozen) and you need to know what it touches.
-- Before a commit, as a last check that no doc still states the old thing.
+- A meaningful decision has changed: a new or revised D-number, a retuned number, a changed rule (the colour law, the controls, what is
+  frozen).
+- Before a commit that changed one, as a last check that no doc still states the old thing.
+
+## When not to
+- Minor artistic adjustments inside an approved brief (a width, a tint, a glow strength): they get no D-number and no sweep; note them in
+  the brief or the commit. Formal decisions are for important design or behaviour changes.
+- The hierarchy is unchanged by this skill: `design/DECISIONS.md` first, then the brief, then COMBAT_ANIMATION, the Bible, WORLD_MAP.
 
 ## Input
 A D-number (`/sync-decision D127`), or a short description of what changed if it has no number yet. If none is given, ask which decision
@@ -32,7 +36,9 @@ or number changed — do not guess.
 2. **Sweep for every reference.** Grep the repo for: the D-number itself (`D127`), the old number if one changed, and the rule's key
    words. Cover at least `design/DECISIONS.md`, `CLAUDE.md`, `docs/UNITY-PORT.md` (the *Rendering differences* table especially),
    `docs/briefs/`, the `design/*.md` notes, `dev/tests.js`, and — only if a simulation number moved — `traces/` and the Unity
-   `Scripts/Sim/` and tuning asset. Do not read whole large files when a targeted grep locates the lines.
+   `Scripts/Sim/` and tuning asset. **Targeted only:** grep for the specific strings, read just the matching lines with a little context,
+   and search only the areas the change can reach (a look-only change never needs `traces/` or `Scripts/Sim/`). No whole-file reads,
+   no repo-wide reading.
 3. **Classify each hit** into one of:
    - **Doc wording** — a sentence that now states the wrong thing. Propose the exact edit.
    - **Test** — an asserted number in `dev/tests.js` (or a Unity test) that must move *in the same change* as the number (the repo rule).

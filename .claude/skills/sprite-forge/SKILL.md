@@ -16,6 +16,27 @@ Vendored from upstream with three small patches (this section, Phase 0, and the 
 - **Colour language.** Red means dodge and yellow means parry (D010), and nothing on Kaname is red or yellow (rule 5, C10 unresolved). Do not use the `high-saturation` style or any red or yellow palette without asking; Kaname's palette is black, deep violet, pale blue and white (D117, D091).
 - **No downloads without a yes.** Never run `reference/install.sh` or `reference/gen-references.sh` (they install `mflux` and pull a model of about 9.6 GB) unless the designer says yes to that specific download. Skip **Reference grounding** and draw cold.
 
+- **Sprite Forge never replaces Unity's procedural rendering.** A concept that the designer approves is a reference for a brief; it reaches the game only through an authorized task (D130's rule: no importing the assets in place of the C# sword).
+
+## FAST STATIC mode (local; the default for small static work)
+
+For **weapons, props, small SVG modifications and simple visual variants** of an already approved source. Full pipeline (below) only for complex animated sprites and character work, or when the designer asks for it.
+
+1. **Read the approved source SVG** (e.g. `design/concepts/cursed-katana/…_Editable_Vector.svg`). Never edit it in place: copy it to a new folder under `design/concepts/sprite-forge/<name>/` as `before.svg` and `after.svg`.
+2. **Apply one focused change** to `after.svg`, the one the designer asked for.
+3. **Validate and render** (no GIF, no sheet, no metadata):
+   ```bash
+   python3 -c "import xml.dom.minidom,sys;xml.dom.minidom.parse(sys.argv[1])" <dir>/after.svg
+   python3 tools/sprite-forge/sprite-forge.py <dir>/<f>.svg --frames 1 --size 512 --output <dir>/<f>_full.png --no-gif --no-meta
+   python3 tools/sprite-forge/sprite-forge.py <dir>/<f>.svg --frames 1 --size <game px> --output <dir>/<f>_game.png --no-gif --no-meta
+   ```
+   for `<f>` = `before` and `after`. **Game px** is the object's on-screen size at game zoom, 3 px per u (`docs/UNITY-PORT.md`; the katana's ~46 u reach is ~138 px): state the arithmetic.
+4. **Previews:** the `_full` and `_game` PNGs are the full-size and gameplay-scale previews.
+5. **Before-and-after:** `python3 .claude/skills/sprite-forge/compare.py <dir> <dir>/compare.png` (before | after, full above game scale, day and night). Look at it yourself once: does the change read at game scale?
+6. **Stop for the designer's visual approval.** Show `compare.png` and say in one or two lines what changed.
+
+Limit: **two passes** (the change, and at most one correction) before showing the designer. Skip rigs, GIFs, sprite sheets, the fresh-eyes subagent, the six-phase pipeline and reference generation. The colour law and "no downloads" above still apply.
+
 ## Usage
 
 The user describes what they want in natural language:
@@ -124,6 +145,8 @@ If the user named a perspective ("top-down", "platformer", "8-direction"), use i
 ---
 
 ## Pick your pipeline depth (complexity tier)
+
+*(Local: a weapon, prop, small SVG change or simple variant of an approved source goes to **FAST STATIC mode** above, not to these tiers.)*
 
 Not every sprite needs the full six phases. After choosing the perspective, classify the subject into one tier and run the matching pipeline. **Default to the tier the subject implies; if the user says "quick / just make it", force Lite; if they say "make it good / be thorough", force Full.**
 

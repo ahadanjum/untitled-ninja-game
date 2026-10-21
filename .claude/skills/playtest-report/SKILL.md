@@ -1,48 +1,41 @@
 ---
 name: playtest-report
-description: Turn the designer's loose feel verdict (dictated, often garbled) into a structured, logged report — findings, what each one means, and the candidate D-number or open question it becomes. For the one level of evidence only the designer with the real controller can give.
+description: The centre of gameplay iteration. Capture the designer's playtest verdict (dictated, often garbled) in their own words and sort it into approved behaviour, bugs, requested improvements and unresolved design choices, each with its next step. Their play with the real controller is the final authority on combat feel and visual taste.
 user_invocable: true
 ---
 
-# Playtest report: structure the designer's feel
+# Playtest report: the designer's verdict drives the next step
 
-The tests prove the numbers and the rules; they cannot say whether it feels good. That is the designer's to judge with the real
-controller, and it is the slowest, least-structured part of the loop. This skill captures that verdict and turns it into something
-actionable and logged — so a feel session ends with clear next steps and clean DECISIONS.md material, not a wall of notes.
+Tests prove the numbers and the rules; only the designer playing with the PlayStation controller says whether it feels and looks right.
+Their experience is the **final authority on combat feel and visual taste** (rule 1, D081): no test result, render or reasoning of
+Claude's outranks it. This skill turns a play session into the next iteration's to-do list, fast.
 
-Borrowed in spirit from a studio-template `playtest-report`, rebuilt to this repo: findings map to the designer's own vocabulary and to
-D-numbers, and nothing the designer says about feel is treated as anything but theirs (rule 1, D081). Everything Claude proposes back is
-marked a proposal (rule 3).
+## The loop it anchors
+build (Sonnet) → `/gate-check fast` → **the designer plays** → `/playtest-report` → fix or tune inside the brief, or ask, or sign off.
+Ask for a playtest as soon as a FAST gate passes; do not stack more polish on an unplayed build.
 
-## Two modes
-- **Capture** (`/playtest-report`) — produce a blank template for a session: what was played, on what (Chrome + PlayStation pad, or the
-  Unity Editor), and prompts for the designer's verdict per thing tried.
-- **Analyze** (`/playtest-report <notes>` or a path) — take the designer's raw, often dictated notes and fill the template with structured
-  findings.
+## Modes
+- **Analyze** (`/playtest-report <notes>` or a path): the usual one. Take the designer's notes and sort them.
+- **Capture** (`/playtest-report` with nothing): give a short prompt list for the session: what to try, on what (the Unity Editor or
+  the JS game in Chrome), and what to look for. Keep it to the build's changes.
 
-If no mode is given, ask which.
+## Capture the verdict
+- **Quote the designer's own words** for every finding. They dictate by voice: where a term looks garbled, give your reading next to the
+  quote, marked as a reading (`design/feel.md` has the glossary). Never paraphrase a verdict into something stronger or softer.
+- **Where it was played:** Unity Editor or Chrome, which build (commit). Only the designer plays. **Claude never reports an Editor
+  playtest it did not perform**; automated tests and rendered sheets are not play.
 
-## Capturing a verdict
-The designer dictates by voice, so terms arrive garbled (the repo rule: state your reading and log it; `design/feel.md` has the glossary).
-For each thing tried, record:
-- **What was played** and where (the JS prototype in Chrome, or the Unity Editor — and if Unity, whether it was a real play or still
-  pending; never invent a playtest).
-- **The verdict in the designer's words**, quoted.
-- **Your reading** of any garbled term, flagged as a reading.
-- **Feel axis**: reach / speed / the pause when a blow lands / the arc / weight / responsiveness — whichever applies.
+## Sort every finding into one of four
+1. **Approved:** behaviour or look the designer accepted. Becomes a sign-off line; it is now protected (rule 10).
+2. **Bug:** it does not do what the brief or the code says it should. Fix inside the current task; a bug needs no D-number.
+3. **Requested improvement:** works as specified, the designer wants it different. If inside the brief's bounds (a tuning, a width, a
+   strength), it goes straight to implementation with one tuning round. If it moves a frozen number, the hitboxes, timing or the traces,
+   it needs the designer's explicit word and `/sync-decision`.
+4. **Unresolved design choice:** a taste or core-play question the notes do not settle. Ask it back as one question with a
+   recommendation (rule 3); do not decide it.
 
-## Turning notes into findings
-For each finding, give:
-1. **The observation** (quoted where possible).
-2. **What it means** — a feel problem, a bug, a taste call, or an approval.
-3. **Where it points** — a number to retune (name it and the test that guards it), a drawing to change, or an open question for the
-   designer. If it is a number, remember retuning changes the test in the same change, and a *simulation* number re-records traces.
-4. **Its home** — the candidate `design/DECISIONS.md` entry (dated, in the log's voice) or the open-question list. Approvals become a
-   sign-off line; complaints become a proposal (marked as such) or a question back.
-
-## Output
-A structured report plus:
-- A short **verdict split**: approved · to change (proposals) · questions back to the designer.
-- **Draft DECISIONS.md lines** ready to paste, in the log's dated voice, with proposals clearly marked and every taste call left to the
-  designer.
+## Output (short)
+- A four-heading list in that order, each finding: the quote · (reading) · the next step (file or number, the test that guards it).
+- **Draft DECISIONS.md lines** only for what is formal: an approval that signs off a task or rung, a behaviour or rule change. Minor
+  artistic adjustments inside an approved brief go in the brief's notes or the commit message, not a D-number.
 - Nothing claimed as played that was not played.

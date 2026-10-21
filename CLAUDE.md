@@ -59,8 +59,18 @@ Its own `CLAUDE.md` is source material: its rules are merged into this file, and
     R2 tap dash (air dash allowed) and hold sprint; □ sword; ✕ jump (double jump later); ○ tap a spell, hold to heal; △ **hold** to
     absorb, bind or cleanse (one contextual input, binding only where the game offers it). Add or remap an input only inside an authorized
     milestone; note the unbuilt ones rather than building them.
-12. **Models (D120).** Claude Opus plans, inspects and reviews; Claude Sonnet implements an approved brief. Recommend only Opus or Sonnet,
-    never Fable.
+12. **Models (D120, D131).** Only Opus and Sonnet, never Fable. **Opus:** planning, architecture, design review, difficult debugging,
+    decisions that need real reasoning. **Sonnet:** implementation, Unity code, procedural rendering, animation, SVG edits, routine tests,
+    bug fixes. Opus does not repeat every Sonnet test run: an independent review is for substantial changes, failures or evidence that
+    disagrees.
+13. **Workflow (D131).** Each step's procedure lives in its skill: `/design-review` for substantial features, architecture changes and
+    ambiguous briefs (not for minor adjustments an approved brief covers); `/gate-check fast` while iterating, `/gate-check full` at
+    task or milestone completion (a frozen file that moved is a blocker in either); `/playtest-report` after every designer playtest,
+    whose verdict is the final authority on feel and look; `/sync-decision` only for a meaningful decision change; `/sprite-forge` in
+    FAST STATIC mode for weapons, props and small variants. **One session writes to the live project at a time;** research and render
+    experiments go in scratch copies. Reuse valid measurements instead of re-baselining; small changes get one implementation pass and at
+    most one tuning round before reporting; no full suite twice without a concrete reason; no scope growth mid-task; stop and ask when a
+    real design decision blocks. Short progress notes at milestones only.
 
 ## Run, test, and look
 ```
@@ -90,7 +100,7 @@ drawn looks (the chosen one is **C**; round 1 is archived) · `unity/` the Unity
 `tools/sprite-forge/` + `.claude/skills/sprite-forge/` the vendored concept-art tool (D129; `/sprite-forge`, output under `design/concepts/sprite-forge/`;
 source and patches in `tools/sprite-forge/UPSTREAM.md`; concepts only, not game code, and Unity owns the look) ·
 `.claude/skills/` the repo-local process skills (`/sync-decision` propagate a changed D-number across docs, tests and traces;
-`/gate-check` a PASS/CONCERNS/FAIL readiness verdict before handing a rung or task over; `/playtest-report` structure the designer's feel
+`/gate-check fast|full` a PASS/CONCERNS/FAIL readiness verdict before handing a rung or task over; `/playtest-report` structure the designer's feel
 verdict into findings and draft D-lines; `/design-review` Opus's pre-handoff check of a brief — rebuilt small from the Claude-Code-Game-Studios
 template, no external scaffold, each advisory and bound by these rules).
 
@@ -134,7 +144,8 @@ the last two steps are blended (measured; `?interp=1|0` forces it), on a 60 Hz d
 - **One rung, one change.** Each independently playable. Evidence in four levels: *build* (suite green, nothing throws), *behavior* (a
   test drives it under repeatable inputs, one per new mechanic), *presentation* (a screenshot looked at: `await snap('label')`),
   *player experience* (only the designer with the real controller; say plainly what still needs their hands).
-- **One implementer, one reviewer** for anything non-trivial; parallel agents get explicit file ownership.
+- **One implementer, one reviewer** for substantial work (rule 12: not a re-run of every test); parallel agents get explicit file
+  ownership and never write the same files.
 - **Report honestly,** and **keep docs true** in the same change that makes them false.
 
 ## Known gaps (not fixed, on purpose)

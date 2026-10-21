@@ -17,13 +17,13 @@ owns the look** (D124), and nothing it makes is canon until the designer says ye
 |---|---|---|
 | `tools/sprite-forge/sprite-forge.py` | The CLI: SVG to frames (`rsvg-convert`), sprite sheet, GIF, metadata, mirror and texture tiling (Pillow) | No, byte-identical |
 | `tools/sprite-forge/README.md` | Upstream's README (its install section does not apply here; see below) | No, byte-identical |
-| `.claude/skills/sprite-forge/` | The Claude Code skill, `/sprite-forge`: `SKILL.md` plus its `rigs/`, `styles/`, `principles/`, `textures/` and the optional `reference/` | **`SKILL.md` only** (below); everything else byte-identical |
+| `.claude/skills/sprite-forge/` | The Claude Code skill, `/sprite-forge`: `SKILL.md` plus its `rigs/`, `styles/`, `principles/`, `textures/` and the optional `reference/` | **`SKILL.md`** (below) and the local `compare.py`; everything else byte-identical |
 
 **Left out on purpose:** upstream's `install.sh` (it installs globally), `showcase/` (1.1 MB of example sprites, still at the URL
 above), `tests/smoke/` (the author's smoke tests), its own `CLAUDE.md` (its development notes, not this repo's rules) and
 `.claude/settings.local.json` (the author's personal permissions, with their home paths).
 
-## The three patches to `SKILL.md`
+## The patches to `SKILL.md` (and one local file)
 
 1. **A section, "In this repo", after the intro:** the repo's rules for the skill (concept and exploration only, outputs under
    `design/concepts/sprite-forge/<name>/`, no red or yellow and no `high-saturation` style without asking, no model downloads without a yes).
@@ -31,6 +31,9 @@ above), `tests/smoke/` (the author's smoke tests), its own `CLAUDE.md` (its deve
    dependencies and asks before installing either.
 3. **The CLI path:** every `sprite-forge <file>.svg …` command is now `python3 tools/sprite-forge/sprite-forge.py <file>.svg …`, run from
    the repo root. (One prose mention in `.claude/skills/sprite-forge/textures/README.md` still says `sprite-forge`; read it as the same path.)
+4. **FAST STATIC mode** (2026-10-21): a section after "In this repo" and a pointer at the top of the complexity tiers, for weapons,
+   props and small variants of an approved SVG (one change, two renders, a before-and-after sheet, then the designer's approval).
+   It uses one local file not in upstream, `.claude/skills/sprite-forge/compare.py` (the before-and-after sheet, Pillow only).
 
 ## Using it
 
@@ -47,6 +50,6 @@ Do not run it without the designer's yes to that download.
 
 ## Updating it
 
-Clone upstream into a scratch folder, diff each path above against its copy, bring over what is wanted, and re-apply the three
-`SKILL.md` patches. Record the new commit in the table at the top. Never run upstream's `install.sh` from here: it writes to
+Clone upstream into a scratch folder, diff each path above against its copy, bring over what is wanted, and re-apply the four
+`SKILL.md` patches (keep `compare.py`). Record the new commit in the table at the top. Never run upstream's `install.sh` from here: it writes to
 `~/.sprite-forge` and `~/.local/bin`, and it deletes and replaces `~/.claude/skills/sprite-forge`.
