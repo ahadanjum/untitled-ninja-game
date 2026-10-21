@@ -1,6 +1,6 @@
 # Task 3 (the katana): inputs on hold
 
-**Status, 2026-10-21: this is not a brief and nothing here is authorized.** The designer chose a look for the katana (D130) and asked
+**Status, 2026-10-21: the brief is now `IMPLEMENTATION_001_TASK_3.md` (reviewed, awaiting the designer's authorization); these are its inputs.** The designer chose a look for the katana (D130) and asked
 that it be saved for task 3. **Task 3 starts only after task 2 and task 2b are done**; then Opus writes the brief from these notes, the
 `/design-review` pass checks it, and the designer authorizes it (rule 1, D120). Until then, nothing is imported into Unity, nothing in the
 drawing code changes, and the open points below stay open.
