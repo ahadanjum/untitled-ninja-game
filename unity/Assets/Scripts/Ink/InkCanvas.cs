@@ -52,6 +52,7 @@ namespace Kaname.Ink
         public readonly List<Rgba> Colors = new List<Rgba>();
         public readonly List<int> Indices = new List<int>();
         public readonly Dictionary<string, V2> Marks = new Dictionary<string, V2>();       // named points the art leaves behind for the tests: drawn as nothing, kept as they came out of the transform
+        public readonly List<(string name, int first, int count)> Groups = new List<(string, int, int)>();   // named runs of triangles (their first index in Indices and how many indices), for the tests: they draw nothing
 
         // ---- state (saved and restored together) ----
         struct M
@@ -104,9 +105,14 @@ namespace Kaname.Ink
         // a named point, taken through the transform in force (the world point the art's own coordinates land on); it draws nothing
         public void Mark(string name, double x, double y) => Marks[name] = st.Ctm.Apply(new V2(x, y));
 
+        // everything drawn between BeginGroup and EndGroup is recorded as one named run of triangles (an empty one is not kept); groups do not nest
+        string openGroup; int openFirst;
+        public void BeginGroup(string name) { openGroup = name; openFirst = Indices.Count; }
+        public void EndGroup() { if (openGroup != null && Indices.Count > openFirst) Groups.Add((openGroup, openFirst, Indices.Count - openFirst)); openGroup = null; }
+
         public void Clear()
         {
-            Verts.Clear(); Colors.Clear(); Indices.Clear(); Marks.Clear();
+            Verts.Clear(); Colors.Clear(); Indices.Clear(); Marks.Clear(); Groups.Clear(); openGroup = null;
             stack.Clear(); st = new State(); path.Clear(); closed.Clear();
         }
 
