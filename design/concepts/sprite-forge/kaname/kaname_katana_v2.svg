@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="256" height="256">
+  <!-- Kaname's katana, drawn (blade out), v2: a sprite-forge PROPOSAL, not canon (D129); Unity owns the look (D124). v1 is kept beside it.
+       What changed from v1 (all toward D122, a dark-steel katana that never reads as a scythe or a sabre):
+       - a flatter curve (v1's tip lifted too much and read as a sabre);
+       - a lighter steel bevel along the cutting edge, the violet only a thin line right at the edge and a faint glow, a yokote line across the tip;
+       - one faint wisp instead of two (D122: far fewer);
+       - a tall squared guard (a plain steel grey, never brass or gold: yellow is off-limits) and a darker violet hilt wrap, so the edge is the violet that reads.
+       No glint at the tip (a pale glint is the parry's telegraph), nothing red or yellow, no smoke. Pointing up-right, edge down; it floats gently. -->
+  <defs>
+    <filter id="soft" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="1.5"/></filter>
+  </defs>
+
+  <g>
+    <animateTransform attributeName="transform" type="translate" dur="1.2s" repeatCount="indefinite"
+      values="0 0; 0 -0.4; 0 -0.9; 0 -1.2; 0 -0.9; 0 -0.4; 0 0"/>
+    <g transform="rotate(-34 32 32)">
+
+      <!-- the violet glow round the hilt, and a soft glow along the cutting edge -->
+      <ellipse cx="10" cy="32.4" rx="7" ry="4.4" fill="#8f4dff" opacity=".3" filter="url(#soft)">
+        <animate attributeName="opacity" dur="1.2s" repeatCount="indefinite" values=".22; .3; .4; .3; .22"/>
+      </ellipse>
+      <path d="M19.4 34.8 C32 35.5 50 34.6 60.6 31.5" fill="none" stroke="#8f4dff" stroke-width="2.4" stroke-linecap="round" opacity=".28" filter="url(#soft)">
+        <animate attributeName="opacity" dur="1.2s" repeatCount="indefinite" values=".2; .28; .36; .28; .2"/>
+      </path>
+
+      <!-- the blade: a dark-steel flat, a gentle curve, the cutting edge underneath, an angled tip -->
+      <path d="M19 30.6 C32 31.2 50 30.6 62.2 28.2 L60.8 31.6 C50 34.8 32 35.7 19 35 Z"
+        fill="#2b3245" stroke="#07090d" stroke-width=".5" stroke-linejoin="round"/>
+      <!-- the lighter steel bevel on the cutting side, up to the ridge -->
+      <path d="M19 33.1 C32 33.8 50 33.2 60.4 31 L60.8 31.6 C50 34.8 32 35.7 19 35 Z" fill="#7d8aa6"/>
+      <!-- the spine's highlight, the ridge, and the yokote across the tip -->
+      <path d="M19.6 31.1 C32 31.7 50 31.1 61.4 28.6" fill="none" stroke="#66738f" stroke-width=".35" opacity=".9"/>
+      <path d="M19 33.1 C32 33.8 50 33.2 60.4 31" fill="none" stroke="#151a26" stroke-width=".35" opacity=".9"/>
+      <path d="M59.2 31.2 L60.9 28.9" fill="none" stroke="#151a26" stroke-width=".4"/>
+      <!-- the restrained violet edge: a thin pale violet line at the very edge, a brighter core -->
+      <path d="M19.4 34.8 C32 35.5 50 34.6 60.6 31.5" fill="none" stroke="#b79cff" stroke-width="1" stroke-linecap="round">
+        <animate attributeName="opacity" dur="1.2s" repeatCount="indefinite" values=".7; .8; .95; .8; .7"/>
+      </path>
+      <path d="M19.8 34.6 C32 35.3 50 34.4 60 31.6" fill="none" stroke="#efe6ff" stroke-width=".3" stroke-linecap="round" opacity=".95"/>
+
+      <!-- one faint wisp off the edge near the tip -->
+      <path d="M55.6 28.6 C53.8 26.8 55 25.6 53.2 23.8" fill="none" stroke="#b79cff" stroke-width=".5" stroke-linecap="round" opacity="0">
+        <animate attributeName="opacity" dur="1.2s" repeatCount="indefinite" values="0; .55; 0; 0; 0"/>
+      </path>
+
+      <!-- the collar and the tall squared guard, plain steel grey -->
+      <rect x="18" y="30.2" width="1.3" height="5.2" fill="#9aa6b8" stroke="#07090d" stroke-width=".2"/>
+      <rect x="16.1" y="28" width="1.9" height="8.8" rx=".8" fill="#9aa6b8" stroke="#07090d" stroke-width=".4"/>
+      <path d="M17.05 29 L17.05 35.8" fill="none" stroke="#5b6678" stroke-width=".25"/>
+
+      <!-- the hilt: a darker deep-violet wrap in a diamond lattice, a steel collar and pommel -->
+      <path d="M4.8 32.4 L16 32.4" fill="none" stroke="#07090d" stroke-width="4.4" stroke-linecap="round"/>
+      <path d="M4.8 32.4 L16 32.4" fill="none" stroke="#2c1f57" stroke-width="3.6" stroke-linecap="round"/>
+      <path d="M5.7 31 L7.1 33.8 M5.7 33.8 L7.1 31 M7.9 31 L9.3 33.8 M7.9 33.8 L9.3 31 M10.1 31 L11.5 33.8 M10.1 33.8 L11.5 31 M12.3 31 L13.7 33.8 M12.3 33.8 L13.7 31 M14.3 31 L15.7 33.8 M14.3 33.8 L15.7 31" fill="none" stroke="#5a45a0" stroke-width=".35"/>
+      <ellipse cx="4.2" cy="32.4" rx="1.3" ry="2.3" fill="#9aa6b8" stroke="#07090d" stroke-width=".25"/>
+    </g>
+  </g>
+</svg>

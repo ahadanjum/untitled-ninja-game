@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="256" height="256">
+  <!-- Kaname's katana, v3: slim, simple and sharp. A sprite-forge PROPOSAL, not canon (D129); Unity owns the look (D124). v1 and v2 are kept beside it.
+       A long narrow blade with a subtle curve tapering to one clean point, one dark-steel colour, a single thin violet line on the cutting edge,
+       a small round guard in plain steel grey (never brass: yellow is off-limits) and a slim deep-violet wrapped hilt with a faint glow.
+       No wisps, no big glow, no tip glint (a pale glint is the parry's telegraph), nothing red or yellow. Pointing up-right, edge down; it floats gently. -->
+  <defs>
+    <filter id="soft" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="1.4"/></filter>
+  </defs>
+
+  <g>
+    <animateTransform attributeName="transform" type="translate" dur="1.2s" repeatCount="indefinite"
+      values="0 0; 0 -0.4; 0 -0.9; 0 -1.2; 0 -0.9; 0 -0.4; 0 0"/>
+    <g transform="rotate(-32 32 32)">
+
+      <!-- a faint violet glow round the hilt only -->
+      <ellipse cx="10" cy="32.5" rx="6.5" ry="3.6" fill="#8f4dff" opacity=".3" filter="url(#soft)">
+        <animate attributeName="opacity" dur="1.2s" repeatCount="indefinite" values=".22; .3; .4; .3; .22"/>
+      </ellipse>
+
+      <!-- the blade: long, narrow, a subtle curve, tapering to one sharp point -->
+      <path d="M19 31 C32 31.5 50 30.9 62.5 28.4 C61.8 30.4 59.5 31.9 56 32.6 C48 34 32 34.5 19 34 Z"
+        fill="#2b3245" stroke="#07090d" stroke-width=".4" stroke-linejoin="round"/>
+      <!-- the lighter bevel on the cutting side, up to the ridge, and the yokote where the point begins -->
+      <path d="M19 32.7 C32 33.2 48 32.6 57.8 31 L56 32.6 C48 34 32 34.5 19 34 Z" fill="#3c4662"/>
+      <path d="M19 32.7 C32 33.2 48 32.6 57.8 31 L59 29" fill="none" stroke="#151a26" stroke-width=".3" opacity=".9"/>
+      <!-- a thin steel highlight along the spine -->
+      <path d="M19.6 31.3 C32 31.8 50 31.2 61.6 28.8" fill="none" stroke="#66738f" stroke-width=".3" opacity=".9"/>
+      <!-- the cutting edge: one thin pale-violet line, curving up into the point -->
+      <path d="M19.4 33.8 C32 34.3 48 33.8 56 32.4 C59.4 31.7 61.5 30.2 62.2 28.7" fill="none" stroke="#b79cff" stroke-width=".6" stroke-linecap="round">
+        <animate attributeName="opacity" dur="1.2s" repeatCount="indefinite" values=".7; .8; .95; .8; .7"/>
+      </path>
+
+      <!-- a small round guard, plain steel grey -->
+      <ellipse cx="17.8" cy="32.5" rx="1" ry="3.7" fill="#9aa6b8" stroke="#07090d" stroke-width=".35"/>
+
+      <!-- the hilt: slim, wrapped deep violet in a diamond lattice, a small pommel -->
+      <path d="M4.8 32.5 L16.6 32.5" fill="none" stroke="#07090d" stroke-width="3" stroke-linecap="round"/>
+      <path d="M4.8 32.5 L16.6 32.5" fill="none" stroke="#2c1f57" stroke-width="2.3" stroke-linecap="round"/>
+      <path d="M6 31.6 L7.2 33.4 M6 33.4 L7.2 31.6 M8.4 31.6 L9.6 33.4 M8.4 33.4 L9.6 31.6 M10.8 31.6 L12 33.4 M10.8 33.4 L12 31.6 M13.2 31.6 L14.4 33.4 M13.2 33.4 L14.4 31.6" fill="none" stroke="#5a45a0" stroke-width=".3"/>
+      <ellipse cx="4.3" cy="32.5" rx="1" ry="1.6" fill="#9aa6b8" stroke="#07090d" stroke-width=".25"/>
+    </g>
+  </g>
+</svg>

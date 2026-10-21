@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Preview: kaname_katana_v3.svg</title>
+  <style>
+    body { background: #1a1a2e; color: #eee; font-family: 'Segoe UI', sans-serif; padding: 30px; }
+    h1 { color: #e94560; }
+    h3 { color: #0f3460; margin-top: 25px; }
+    .section { margin: 20px 0; }
+    .sheet { display: block; margin: 10px 0; border: 2px solid #0f3460; }
+    .checkerboard { background-image: repeating-conic-gradient(#222 0% 25%, #2a2a2a 0% 50%); background-size: 16px 16px; }
+    .info { color: #888; font-size: 13px; }
+    .side-by-side { display: flex; gap: 30px; align-items: flex-start; }
+    canvas { border: 1px solid #333; image-rendering: pixelated; }
+    object { border: 1px solid #333; background: #16213e; }
+  </style>
+</head>
+<body>
+  <h1>Sprite Preview: kaname_katana_v3.svg</h1>
+  <p class="info">12 frames | 128x128px | 1.2s cycle | 10.0 fps</p>
+
+  <div class="side-by-side">
+    <div class="section">
+      <h3>Live SVG Animation</h3>
+      <object data="kaname_katana_v3.svg" type="image/svg+xml" width="256" height="256"></object>
+    </div>
+    <div class="section">
+      <h3>Extracted Playback</h3>
+      <canvas id="frame-preview" class="checkerboard" width="128" height="128"></canvas>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Sprite Sheet</h3>
+    <img src="kaname_katana_v3_spritesheet.png" class="sheet checkerboard"/>
+  </div>
+  
+
+  <script>
+    const sheetImg = new Image();
+    sheetImg.src = "kaname_katana_v3_spritesheet.png";
+    sheetImg.onload = () => {
+      const c = document.getElementById("frame-preview");
+      const ctx = c.getContext("2d");
+      let i = 0;
+      setInterval(() => {
+        ctx.clearRect(0, 0, 128, 128);
+        ctx.drawImage(sheetImg, i * 128, 0, 128, 128, 0, 0, 128, 128);
+        i = (i + 1) % 12;
+      }, 100);
+    };
+    
+  </script>
+</body>
+</html>

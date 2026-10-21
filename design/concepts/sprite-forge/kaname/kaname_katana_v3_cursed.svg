@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="256" height="256">
+  <!-- Kaname's katana, v3 CURSED: a sprite-forge PROPOSAL, not canon (D129); Unity owns the look (D124). v3 itself is kept untouched beside it.
+       The blade, guard and hilt are exactly v3's (the designer's keeper). What is added, from the designer's reference image, kept restrained so the steel and the katana shape still read first (D122):
+       faint glowing runes along the blade that pulse in a travelling wave, a soft violet glow round the whole blade and a stronger one on the edge,
+       three small violet flames and two dark smoke tendrils rising from the spine, and a few embers drifting up. The ornate horned hilt of the reference is NOT used.
+       Nothing red or yellow, no tip glint (a pale glint is the parry's telegraph). The flames and embers are drawn in screen space so they rise upward whatever the blade's angle. -->
+  <defs>
+    <filter id="soft" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="1.4"/></filter>
+    <filter id="wide" x="-40%" y="-80%" width="180%" height="260%"><feGaussianBlur stdDeviation="1.9"/></filter>
+  </defs>
+
+  <g>
+    <animateTransform attributeName="transform" type="translate" dur="1.2s" repeatCount="indefinite"
+      values="0 0; 0 -0.4; 0 -0.9; 0 -1.2; 0 -0.9; 0 -0.4; 0 0"/>
+
+    <!-- BEHIND THE BLADE, in screen space: two dark smoke tendrils and three small violet flames rising off the spine -->
+    <path d="M46.4 22 C44.4 19 48.2 17.2 46 14 C45 12.6 46 11.4 47 10.4" fill="none" stroke="#2a1450" stroke-width=".7" stroke-linecap="round" opacity="0">
+      <animate attributeName="opacity" dur="1.2s" repeatCount="indefinite" values="0; .55; .6; .35; .1; 0; 0"/>
+      <animateTransform attributeName="transform" type="translate" dur="1.2s" repeatCount="indefinite" values="0 0; .3 -.4; 0 -.8; -.3 -1.2; 0 -1.6; .3 -1.2; 0 0"/>
+    </path>
+    <path d="M38 27 C36 24.4 39.6 22.6 37.4 19.6 C36.6 18.4 37.4 17.2 38.4 16.4" fill="none" stroke="#2a1450" stroke-width=".7" stroke-linecap="round" opacity="0">
+      <animate attributeName="opacity" dur="1.2s" repeatCount="indefinite" values="0; 0; .55; .6; .35; .1; 0"/>
+      <animateTransform attributeName="transform" type="translate" dur="1.2s" repeatCount="indefinite" values="0 0; -.3 -.4; 0 -.8; .3 -1.2; 0 -1.6; -.3 -1.2; 0 0"/>
+    </path>
+    <path d="M34.3 29.8 C32.8 27.6 35.2 26.4 33.9 23.8 C36.6 25.4 36.6 28 35.6 29.8 Z" fill="#b79cff" opacity=".6">
+      <animate attributeName="opacity" dur="1.2s" repeatCount="indefinite" values=".5; .75; .55; .8; .6; .7; .5"/>
+      <animateTransform attributeName="transform" type="translate" dur="1.2s" repeatCount="indefinite" values="0 0; .4 -.3; 0 -.6; -.4 -.3; 0 0"/>
+    </path>
+    <path d="M42.6 24.6 C41 22.2 43.6 21 42.2 18.2 C45 20 45 22.8 44 24.6 Z" fill="#b79cff" opacity=".6">
+      <animate attributeName="opacity" dur="1.2s" repeatCount="indefinite" values=".7; .5; .8; .55; .75; .6; .7"/>
+      <animateTransform attributeName="transform" type="translate" dur="1.2s" repeatCount="indefinite" values="0 0; -.4 -.3; 0 -.6; .4 -.3; 0 0"/>
+    </path>
+    <path d="M49.8 19.2 C48.4 17 50.6 15.8 49.4 13.2 C51.8 14.8 51.8 17.4 50.9 19.2 Z" fill="#b79cff" opacity=".6">
+      <animate attributeName="opacity" dur="1.2s" repeatCount="indefinite" values=".55; .8; .5; .75; .6; .8; .55"/>
+      <animateTransform attributeName="transform" type="translate" dur="1.2s" repeatCount="indefinite" values="0 0; .4 -.3; 0 -.6; -.4 -.3; 0 0"/>
+    </path>
+
+    <g transform="rotate(-32 32 32)">
+
+      <!-- a stronger violet glow round the hilt, and a soft glow round the whole blade -->
+      <ellipse cx="10" cy="32.5" rx="6.5" ry="3.6" fill="#8f4dff" opacity=".4" filter="url(#soft)">
+        <animate attributeName="opacity" dur="1.2s" repeatCount="indefinite" values=".3; .4; .55; .4; .3"/>
+      </ellipse>
+      <path d="M19 31 C32 31.5 50 30.9 62.5 28.4 C61.8 30.4 59.5 31.9 56 32.6 C48 34 32 34.5 19 34 Z" fill="none" stroke="#8f4dff" stroke-width="2.4" stroke-linejoin="round" opacity=".22" filter="url(#wide)">
+        <animate attributeName="opacity" dur="1.2s" repeatCount="indefinite" values=".16; .24; .32; .24; .16"/>
+      </path>
+
+      <!-- the blade, exactly v3's -->
+      <path d="M19 31 C32 31.5 50 30.9 62.5 28.4 C61.8 30.4 59.5 31.9 56 32.6 C48 34 32 34.5 19 34 Z"
+        fill="#2b3245" stroke="#07090d" stroke-width=".4" stroke-linejoin="round"/>
+      <path d="M19 32.7 C32 33.2 48 32.6 57.8 31 L56 32.6 C48 34 32 34.5 19 34 Z" fill="#3c4662"/>
+      <path d="M19 32.7 C32 33.2 48 32.6 57.8 31 L59 29" fill="none" stroke="#151a26" stroke-width=".3" opacity=".9"/>
+      <path d="M19.6 31.3 C32 31.8 50 31.2 61.6 28.8" fill="none" stroke="#66738f" stroke-width=".3" opacity=".9"/>
+
+      <!-- faint runes on the blade's flat: three groups lighting up in a travelling wave from the guard to the point -->
+      <g fill="none" stroke="#d9c8ff" stroke-width=".28" stroke-linecap="round" opacity=".3">
+        <animate attributeName="opacity" dur="1.2s" repeatCount="indefinite" values=".25; .95; .4; .25; .25; .25; .25"/>
+        <path d="M26 31.8 L26 32.7 M25.5 32.25 L26.5 32.25 M29 31.8 L30 32.7 M30 31.8 L29 32.7 M33 31.8 L33 32.7 M32.5 31.8 L33.5 31.8"/>
+      </g>
+      <g fill="none" stroke="#d9c8ff" stroke-width=".28" stroke-linecap="round" opacity=".3" transform="translate(0 -.1)">
+        <animate attributeName="opacity" dur="1.2s" repeatCount="indefinite" values=".25; .25; .25; .95; .4; .25; .25"/>
+        <path d="M36.5 32.7 L37 31.8 L37.5 32.7 M40 31.8 L41 31.8 M40.5 31.8 L40.5 32.7 M43.5 32.2 L44.5 32.2 M44 31.8 L44 32.7 M43.5 32.7 L44.5 32.7"/>
+      </g>
+      <g fill="none" stroke="#d9c8ff" stroke-width=".28" stroke-linecap="round" opacity=".3" transform="translate(0 -.35)">
+        <animate attributeName="opacity" dur="1.2s" repeatCount="indefinite" values=".25; .25; .25; .25; .4; .95; .25"/>
+        <path d="M47.3 31.8 L47.3 32.7 L48.2 32.7 M50.8 32.7 L51.3 31.8 L51.8 32.3 L52.3 31.8"/>
+      </g>
+
+      <!-- the cutting edge: a pale-violet line curving into the point, with a stronger glow beneath it -->
+      <path d="M19.4 33.8 C32 34.3 48 33.8 56 32.4 C59.4 31.7 61.5 30.2 62.2 28.7" fill="none" stroke="#8f4dff" stroke-width="2.2" stroke-linecap="round" opacity=".38" filter="url(#soft)">
+        <animate attributeName="opacity" dur="1.2s" repeatCount="indefinite" values=".28; .38; .5; .38; .28"/>
+      </path>
+      <path d="M19.4 33.8 C32 34.3 48 33.8 56 32.4 C59.4 31.7 61.5 30.2 62.2 28.7" fill="none" stroke="#b79cff" stroke-width=".7" stroke-linecap="round">
+        <animate attributeName="opacity" dur="1.2s" repeatCount="indefinite" values=".75; .85; 1; .85; .75"/>
+      </path>
+
+      <!-- the guard and hilt, exactly v3's -->
+      <ellipse cx="17.8" cy="32.5" rx="1" ry="3.7" fill="#9aa6b8" stroke="#07090d" stroke-width=".35"/>
+      <path d="M4.8 32.5 L16.6 32.5" fill="none" stroke="#07090d" stroke-width="3" stroke-linecap="round"/>
+      <path d="M4.8 32.5 L16.6 32.5" fill="none" stroke="#2c1f57" stroke-width="2.3" stroke-linecap="round"/>
+      <path d="M6 31.6 L7.2 33.4 M6 33.4 L7.2 31.6 M8.4 31.6 L9.6 33.4 M8.4 33.4 L9.6 31.6 M10.8 31.6 L12 33.4 M10.8 33.4 L12 31.6 M13.2 31.6 L14.4 33.4 M13.2 33.4 L14.4 31.6" fill="none" stroke="#5a45a0" stroke-width=".3"/>
+      <ellipse cx="4.3" cy="32.5" rx="1" ry="1.6" fill="#9aa6b8" stroke="#07090d" stroke-width=".25"/>
+    </g>
+
+    <!-- IN FRONT, in screen space: a few embers drifting up off the blade -->
+    <g fill="#cdb6ff">
+      <circle cx="36" cy="26" r=".45" opacity="0">
+        <animate attributeName="opacity" dur="1.2s" repeatCount="indefinite" values="0; .8; .8; .5; .2; 0; 0"/>
+        <animateTransform attributeName="transform" type="translate" dur="1.2s" repeatCount="indefinite" values="0 0; 0 -.8; 0 -1.6; 0 -2.4; 0 -3.2; 0 -4; 0 0"/>
+      </circle>
+      <circle cx="44" cy="20" r=".45" opacity="0">
+        <animate attributeName="opacity" dur="1.2s" repeatCount="indefinite" values="0; 0; .8; .8; .5; .2; 0"/>
+        <animateTransform attributeName="transform" type="translate" dur="1.2s" repeatCount="indefinite" values="0 0; 0 -.8; 0 -1.6; 0 -2.4; 0 -3.2; 0 -4; 0 0"/>
+      </circle>
+      <circle cx="51" cy="14.5" r=".45" opacity="0">
+        <animate attributeName="opacity" dur="1.2s" repeatCount="indefinite" values="0; .8; .6; .3; 0; 0; 0"/>
+        <animateTransform attributeName="transform" type="translate" dur="1.2s" repeatCount="indefinite" values="0 0; 0 -.8; 0 -1.6; 0 -2.4; 0 -3.2; 0 -4; 0 0"/>
+      </circle>
+      <circle cx="40.5" cy="22.6" r=".35" opacity="0">
+        <animate attributeName="opacity" dur="1.2s" repeatCount="indefinite" values="0; 0; 0; .8; .8; .4; 0"/>
+        <animateTransform attributeName="transform" type="translate" dur="1.2s" repeatCount="indefinite" values="0 0; 0 -.8; 0 -1.6; 0 -2.4; 0 -3.2; 0 -4; 0 0"/>
+      </circle>
+      <circle cx="47.5" cy="17.2" r=".35" opacity="0">
+        <animate attributeName="opacity" dur="1.2s" repeatCount="indefinite" values="0; .6; .8; .8; .3; 0; 0"/>
+        <animateTransform attributeName="transform" type="translate" dur="1.2s" repeatCount="indefinite" values="0 0; 0 -.8; 0 -1.6; 0 -2.4; 0 -3.2; 0 -4; 0 0"/>
+      </circle>
+      <circle cx="32" cy="29" r=".35" opacity="0">
+        <animate attributeName="opacity" dur="1.2s" repeatCount="indefinite" values="0; 0; .7; .8; .4; 0; 0"/>
+        <animateTransform attributeName="transform" type="translate" dur="1.2s" repeatCount="indefinite" values="0 0; 0 -.8; 0 -1.6; 0 -2.4; 0 -3.2; 0 -4; 0 0"/>
+      </circle>
+    </g>
+  </g>
+</svg>

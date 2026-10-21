@@ -1,0 +1,10 @@
+{
+  "source": "kaname_katana.svg",
+  "frameCount": 12,
+  "frameWidth": 128,
+  "frameHeight": 128,
+  "sheetWidth": 1536,
+  "sheetHeight": 128,
+  "animationDuration": 1.2,
+  "fps": 10.0
+}
