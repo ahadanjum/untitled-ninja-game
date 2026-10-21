@@ -251,23 +251,18 @@ namespace Kaname.Look
         // Every number that places his body for the current pose: used by the drawing and by the speed lines (for their heights).
         public Pose Place() => Place(In.Cx, In.Y);
 
-        // The blade's outline, in the blade's own frame (the hand at the origin, pointing along +x): the guard, and the polygon of the spine's and the cutting edge's curves
-        // (the same quadratics DrawBlade fills, flattened), as closed polylines. A cut that would push any edge of them into a solid is stopped at the last angle that does
+        // The blade's outline, in the blade's own frame (the hand at the origin, pointing along +x): the polygon of the katana's blade and the guard's height, as closed polylines
+        // (both from KatanaShape, the one outline DrawBlade also fills). A cut that would push any edge of them into a solid is stopped at the last angle that does
         // not (R3): the blade comes to rest on the surface. The grip and pommel are a second polyline, checked only against solids that are not the floor he is over (his hip
         // is swung a little under his feet by a lean, so against that floor they would always touch).
         static readonly (double x, double y)[][] BladeParts = BuildBladeParts();
-        static readonly (double x, double y)[] GripPart = { (-9, -2), (4, -1.7), (4, 1.7), (-9, 2), (-9, -2) };
+        static readonly (double x, double y)[] GripPart = KatanaShape.GripBox;
         static (double x, double y)[][] BuildBladeParts()
         {
-            double len = BladeLen, tipX = 5 + len, tipY = -len * 0.1, mid = 5 + len * 0.6, ecx = 5 + len * 0.66;
-            (double, double) Q(double x0, double y0, double x1, double y1, double x2, double y2, double t) { double u = 1 - t; return (u * u * x0 + 2 * u * t * x1 + t * t * x2, u * u * y0 + 2 * u * t * y1 + t * t * y2); }
-            var body = new System.Collections.Generic.List<(double, double)>();
-            for (int i = 0; i <= 24; i++) body.Add(Q(5.5, -1.7, mid, -2.2, tipX, tipY, i / 24.0));      // the spine, guard to tip
-            for (int i = 1; i <= 24; i++) body.Add(Q(tipX, tipY, ecx, 4.2, 5.5, 2.1, i / 24.0));        // the cutting edge, tip to guard
-            body.Add((5.5, -1.7));
-            return new[] { body.ToArray(), new (double, double)[] { (4.6, -4.2), (4.6, 4.2) } };
+            var body = new System.Collections.Generic.List<(double x, double y)>(KatanaShape.Polygon); body.Add(body[0]);
+            return new[] { body.ToArray(), new (double, double)[] { (KatanaShape.GuardX, -KatanaShape.GuardRy), (KatanaShape.GuardX, KatanaShape.GuardRy) } };
         }
-        public const double SurfaceMargin = 0.45;                      // how far from a surface the blade's outline stays (the pale edge line along it is 0.8 wide)
+        public const double SurfaceMargin = 0.45;                      // how far from a surface the blade's outline stays (its ink outline is 0.45 wide)
 
         // does the segment (ax, ay)-(bx, by) cross the box x0..x1, y0..y1?
         static bool Crosses(double ax, double ay, double bx, double by, double x0, double y0, double x1, double y1)
@@ -364,6 +359,78 @@ namespace Kaname.Look
             }
             return new Pose { Run = run, Air = air, Rise = rise, D = d, Sp = sp, L1 = l1, L2 = l2, Lift1 = lift1, Lift2 = lift2, Crouch = crouch, Bob = bob, Step = step, Hb = hb, Hy = hy,
                 Hx = hx, Hyy = hyy, Tx = tx, Ty = ty, W1x = w1x, W1y = w1y, Kx = kx, Ky = ky, Ang = ang, WA = wA };
+        }
+    }
+
+    // The cursed katana's outline (task 3; D130, D132), in the blade's own frame: the hand at the origin, the blade along +x, the cutting edge on +y. ONE description, used by
+    // DrawBlade to fill the blade, guard, grip and pommel and by HeroLook to rest the blade on a surface, so the two cannot drift. The root, the tip, the spine's curve and the
+    // guard's x are the old blade's (the reach and the slash's radius are unchanged); only the blade's width changes: a constant Width from the guard to PointLen before the tip,
+    // then a short straight cut to the tip. The offset of a quadratic is not a quadratic, so the edge is sampled as a polyline.
+    public static class KatanaShape
+    {
+        public const double Width = 2.4;                                  // the blade's width, perpendicular to the spine (tunable 2.0 to 3.0)
+        public const double PointLen = 5;                                 // the kissaki: the last 5 u (along the spine) before the tip, where the edge sweeps up to the spine in a convex curve
+        public const double BevelFrac = 1.0 / 3;                          // the lighter band along the cutting edge: a third of the width
+        public const double OutlineW = 0.45, EdgeLineW = 0.5;             // the ink outline and the thin violet line on the edge (tunable 0.35 to 0.6 and 0.35 to 0.7)
+        public const double GuardX = 4.6, GuardRx = 1.8, GuardRy = 4.6;   // the tall rounded guard (radii)
+        public const double GripX0 = -6, GripX1 = 4, GripHalf = 1.7, PommelX = -7, PommelR = 2;
+        public const int Samples = 24, PointSamples = 8;
+        // the blade's width at a fraction f (0 where the kissaki begins, 1 at the tip) of the point: a convex curve, flat where it leaves the edge and meeting the spine at the tip at about 44 degrees
+        public static double PointWidth(double f) { return Width * (1 - f * f); }
+        public static readonly (double x, double y) Root = (5.5, -1.7), Tip = (5 + HeroLook.BladeLen, -HeroLook.BladeLen * 0.1);
+        // revision 3: a CUBIC spine. The first control point lies on the line through the root parallel to the grip's axis, so the blade leaves the guard dead straight (no kink) and the
+        // curve builds toward the tip (curvature about 5x greater in the outer half); the bow from the root-tip chord is about 1.5 u (revision 2's quadratic: 2.2 u). Root, tip and length are unchanged.
+        static readonly (double x, double y) C1 = (20, Root.y), C2 = (34, -0.45);
+        public static readonly double EdgeEnd;                            // the spine's parameter where the constant width ends
+        public static readonly (double x, double y)[] Polygon;            // the blade, a ring: the spine guard to tip, the angled cut, the cutting edge back to the guard
+        public static readonly (double x, double y)[] Bevel;              // the lighter band along the edge, a ring
+        public static readonly (double x, double y)[] GripBox;            // the grip and pommel's box, closed: what a surface is checked against
+
+        public static (double x, double y) Spine(double t)
+        {
+            double u = 1 - t, a = u * u * u, b = 3 * u * u * t, c = 3 * u * t * t, d = t * t * t;
+            return (a * Root.x + b * C1.x + c * C2.x + d * Tip.x, a * Root.y + b * C1.y + c * C2.y + d * Tip.y);
+        }
+        public static (double x, double y) Tangent(double t)
+        {
+            double u = 1 - t, a = 3 * u * u, b = 6 * u * t, c = 3 * t * t;
+            double dx = a * (C1.x - Root.x) + b * (C2.x - C1.x) + c * (Tip.x - C2.x), dy = a * (C1.y - Root.y) + b * (C2.y - C1.y) + c * (Tip.y - C2.y), l = Math.Sqrt(dx * dx + dy * dy); return (dx / l, dy / l);
+        }
+        // a point at distance d from the spine, toward the cutting edge (+y)
+        public static (double x, double y) Offset(double t, double d)
+        {
+            var p = Spine(t); var n = Tangent(t); return (p.x - n.y * d, p.y + n.x * d);
+        }
+        // the spine's parameter where its x is x (the spine only ever runs forward)
+        public static double ParamAtX(double x)
+        {
+            double lo = 0, hi = 1; for (int i = 0; i < 40; i++) { double m = (lo + hi) / 2; if (Spine(m).x < x) lo = m; else hi = m; } return (lo + hi) / 2;
+        }
+        // the edge at offset d from t = 0 to EdgeEnd (guard to where the point begins)
+        public static (double x, double y)[] EdgeLine(double d)
+        {
+            var l = new (double x, double y)[Samples + 1]; for (int i = 0; i <= Samples; i++) l[i] = Offset(EdgeEnd * i / Samples, d); return l;
+        }
+
+        static KatanaShape()
+        {
+            const int M = 400; var s = new double[M + 1]; var prev = Spine(0); double total = 0;                    // arc length along the spine, to find where the last PointLen begins
+            for (int i = 1; i <= M; i++) { var q = Spine(i / (double)M); total += Math.Sqrt((q.x - prev.x) * (q.x - prev.x) + (q.y - prev.y) * (q.y - prev.y)); s[i] = total; prev = q; }
+            int k = M; while (k > 0 && s[k] > total - PointLen) k--;
+            EdgeEnd = (k + (total - PointLen - s[k]) / (s[k + 1] - s[k])) / M;
+            var poly = new System.Collections.Generic.List<(double x, double y)>();
+            for (int i = 0; i <= Samples; i++) poly.Add(Spine(i / (double)Samples));                                // the spine, guard to tip
+            for (int i = PointSamples - 1; i >= 1; i--) { double f = i / (double)PointSamples; poly.Add(Offset(EdgeEnd + (1 - EdgeEnd) * f, PointWidth(f))); }   // the kissaki's curved edge, tip back to where it begins
+            for (int i = 0; i <= Samples; i++) poly.Add(Offset(EdgeEnd * (Samples - i) / Samples, Width));          // then the cutting edge back to the guard
+            Polygon = poly.ToArray();
+            var bev = new System.Collections.Generic.List<(double x, double y)>();
+            for (int i = 0; i <= Samples; i++) bev.Add(Offset(EdgeEnd * i / Samples, Width * (1 - BevelFrac)));     // the bevel's inner line, guard to the kissaki
+            for (int i = 1; i < PointSamples; i++) { double f = i / (double)PointSamples; bev.Add(Offset(EdgeEnd + (1 - EdgeEnd) * f, PointWidth(f) * (1 - BevelFrac))); }   // narrowing with it
+            bev.Add(Tip);                                                                                          // to the tip, then back along the edge (the polygon's own points)
+            for (int i = PointSamples - 1; i >= 1; i--) { double f = i / (double)PointSamples; bev.Add(Offset(EdgeEnd + (1 - EdgeEnd) * f, PointWidth(f))); }
+            for (int i = 0; i <= Samples; i++) bev.Add(Offset(EdgeEnd * (Samples - i) / Samples, Width));
+            Bevel = bev.ToArray();
+            GripBox = new[] { (PommelX - PommelR, -PommelR), (GripX1, -GripHalf), (GripX1, GripHalf), (PommelX - PommelR, PommelR), (PommelX - PommelR, -PommelR) };
         }
     }
 }

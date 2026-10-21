@@ -10,6 +10,7 @@ namespace Kaname.Look
         public const string BandRgb = "58,34,115";                                                     // the same colour, for the speed lines
         public const string CurseRgb = "143,77,255";
         public static readonly Rgba Hilt = Rgba.Hex("#3a2a70"), HiltLt = Rgba.Hex("#6a52b0"), Steel = Rgba.Hex("#9aa6b8"), Saya = Rgba.Hex("#241a46"), SayaLt = Rgba.Hex("#4a3a80");
+        public static readonly Rgba BladeSteel = Rgba.Hex("#2b2d4c"), BladeBevel = Rgba.Hex("#646f92"), Wrap = Rgba.Hex("#2a1b55"), WrapX = Rgba.Hex("#5937b0");   // the cursed katana (task 3, D130, D132): dark blue steel, a lighter bevel along the edge, a deep-violet grip wrapped with violet X crossings; every one darker than the slash
         public static readonly Rgba Rope = Rgba.Hex("#b79f78"), RopeDk = Rgba.Hex("#4a3e28");           // the dummies' rope bands
         public static readonly Rgba SlashCore = Rgba.Hex("#f4efff"), SlashBand = Rgba.Hex("#b79cff"), SlashInk = Rgba.Hex("#24143e");   // the slash of a cut (task 2): a bright core, a pale violet band, a thin ink line so it reads on the white stage
         public static readonly Rgba Ink = Rgba.Hex("#1a2140"), InkHead = Rgba.Hex("#262f52"), Wood = Rgba.Hex("#5a4a3a");   // the test dummies' ink (used from rung U4)

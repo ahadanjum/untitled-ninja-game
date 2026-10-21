@@ -141,13 +141,13 @@ namespace Kaname.Look
             if (wA < 0.4)
             {
                 Limb(ctx, new[] { new Pt(w1x, w1y - 0.1), new Pt(kx, ky) }, Palette.Blk, 2.5); Limb(ctx, new[] { new Pt(w1x, w1y - 0.1), new Pt(kx, ky) }, Palette.Hilt, 1.9);
-                ctx.LineWidth = 0.27; ctx.StrokeStyle(Palette.HiltLt);
-                for (int i = 0; i < 3; i++)
+                ctx.LineWidth = 0.27; ctx.StrokeStyle(Palette.HiltLt);                    // two small X crossings of the wrap, as on the drawn sword's grip (task 3)
+                for (int i = 0; i < 2; i++)
                 {
-                    double f = 0.28 + i * 0.24, px = Mathx.Lerp(w1x, kx, f), py = Mathx.Lerp(w1y, ky, f);
-                    ctx.BeginPath(); ctx.MoveTo(px, py + 0.9); ctx.LineTo(px + 0.4, py - 0.9); ctx.Stroke();
+                    double f = 0.4 + i * 0.3, px = Mathx.Lerp(w1x, kx, f), py = Mathx.Lerp(w1y, ky, f);
+                    ctx.BeginPath(); ctx.MoveTo(px - 0.5, py + 0.8); ctx.LineTo(px + 0.5, py - 0.8); ctx.MoveTo(px - 0.5, py - 0.8); ctx.LineTo(px + 0.5, py + 0.8); ctx.Stroke();
                 }
-                InkShape(ctx, Palette.Steel, () => ctx.Ellipse(w1x - 0.5, w1y - 0.4, 0.9, 2.1, -0.3, 0, 7), Palette.Blk, 0.2);
+                InkShape(ctx, Palette.Steel, () => ctx.Ellipse(w1x - 0.5, w1y - 0.4, 0.95, 2.4, -0.3, 0, 7), Palette.Blk, 0.2);       // the tall rounded guard (1.8 : 4.6 as on the drawn sword), at the hilt's scale
                 double ch = v.Charge;                                                    // the charge: the glow swells, motes gather into the hilt, and when it is ready a ring pulses out
                 GlowDot(ctx, (w1x + kx) / 2, (w1y + ky) / 2, 7 + ch * 9, Palette.CurseRgb, 0.22 + 0.2 * pulse + ch * 0.45);
                 GlowDot(ctx, kx + 0.3, ky - 0.1, 5.4 + ch * 7, Palette.CurseRgb, 0.2 + 0.24 * pulse + ch * 0.4);          // the glow on the sword (no smoke)
@@ -286,46 +286,65 @@ namespace Kaname.Look
             ctx.EndGroup();
         }
 
-        // The blade in his hand during a cut, drawn as Little Shinobi draws its cutlass but cursed: a wrapped grip, a guard and a curved blade of
-        // violet-black with a spine and a band of pale violet fire along the cutting edge, wisps of violet fire streaming back off it, and a soft
-        // aura hugging the whole blade, strongest toward the tip. The aura is the blade's own: it moves with it and ends at its tip.
-        static void DrawBlade(InkCanvas ctx, HeroLook P, Pose Q)
+        // The blade in his hand during a cut: the designer's cursed katana without its effects (task 3; D130, D132). A curved blade of dark blue steel of a constant width with a
+        // lighter bevel along the cutting edge, a thin violet line on the edge, an angled point and a thick ink outline; a tall rounded steel guard; a deep-violet grip wrapped with
+        // violet X crossings and a round steel pommel; and a row of faint violet glyphs along the flat (their own group, one mark each, for rung 8 to light by index: D133). No
+        // aura, glow or wisps: everything it draws lies inside its own silhouette, so the slash alone shows the reach. The outline is KatanaShape's, the one the surface rest uses.
+        public static void DrawBlade(InkCanvas ctx, HeroLook P, Pose Q)
         {
             double al = Q.WA; if (al < 0.02) return;
-            var (a0, a1) = HeroLook.SwingAngles(P.Swing); double len = HeroLook.BladeLen, tipX = 5 + len, tipY = -len * 0.1, mid = 5 + len * 0.6, ecx = 5 + len * 0.66;
-            (double x, double y) Edge(double u) { double w = 1 - u; return (w * w * tipX + 2 * w * u * ecx + u * u * 5.5, w * w * tipY + 2 * w * u * 4.2 + u * u * 2.1); }   // u: 0 at the tip, 1 at the guard
-            double seed = Math.Floor(P.T * 24), flick = 0.88 + 0.12 * Hash2(seed, 99);
+            var (a0, a1) = HeroLook.SwingAngles(P.Swing); double len = HeroLook.BladeLen, tipX = 5 + len, tipY = -len * 0.1, mid = 5 + len * 0.6;
+            void Path((double x, double y)[] pts) { ctx.BeginPath(); ctx.MoveTo(pts[0].x, pts[0].y); for (int i = 1; i < pts.Length; i++) ctx.LineTo(pts[i].x, pts[i].y); }
             ctx.Save(); ctx.Translate(Q.W1x, Q.W1y); ctx.Rotate(Q.Ang); if (a1 < a0) ctx.Scale(1, -1);                      // the cutting edge always leads
             ctx.GlobalAlpha = al;
-            for (int i = 0; i <= 4; i++) { double t = i / 4.0, u = 1 - t; ctx.Mark("blade." + i, u * u * 5.5 + 2 * u * t * mid + t * t * tipX, 2 * u * t * -1.2 + t * t * tipY); }   // the blade's axis, guard to tip, for the tests (blade.4 is the tip)
-            // the aura: a soft halo along the blade and glow where the edge burns
-            ctx.LineCap = Cap.Round; ctx.BeginPath(); ctx.MoveTo(5.5, 0); ctx.QuadraticCurveTo(mid, -1.2, tipX, tipY);
-            ctx.LineWidth = 11; ctx.StrokeStyle(C(Palette.CurseRgb, 0.16 * flick)); ctx.Stroke(); ctx.LineWidth = 6; ctx.StrokeStyle(C(Palette.CurseRgb, 0.3 * flick)); ctx.Stroke();
-            for (int i = 1; i <= 6; i++) { double u = (i - 0.5) / 6.5; var e = Edge(u); GlowDot(ctx, e.x, e.y + 1, 5 + Hash2(seed, i) * 3, Palette.CurseRgb, (0.16 + (1 - u) * 0.3) * flick); }
-            // the grip, the pommel and the guard (the blade's physical body, from here to the edge line, is one group for the tests; the aura, glow dots and wisps are not)
+            for (int i = 0; i <= 4; i++) { var m = i == 4 ? KatanaShape.Tip : KatanaShape.Offset(i / 4.0, KatanaShape.Width / 2); ctx.Mark("blade." + i, m.x, m.y); }   // the blade's centre line, guard to tip, for the tests (blade.4 is the tip)
+            // the physical body (the grip, the pommel, the blade, the guard) is one group for the tests
             ctx.BeginGroup("blade.body");
-            ctx.FillStyle(Rgba.Hex("#24143e")); ctx.FillRect(-6, -1.7, 10, 3.4);
-            ctx.StrokeStyle(Palette.HiltLt); ctx.LineWidth = 0.7; ctx.BeginPath(); for (int i = 0; i < 4; i++) { ctx.MoveTo(-5 + i * 2.4, -1.7); ctx.LineTo(-3.6 + i * 2.4, 1.7); } ctx.Stroke();
-            InkShape(ctx, Palette.Steel, () => ctx.Arc(-7, 0, 2, 0, 7), Palette.Blk, 0.2);
-            InkShape(ctx, Palette.Steel, () => ctx.Ellipse(4.6, 0, 1.6, 4.2, 0, 0, 7), Palette.Blk, 0.2);
-            // the curved blade, its spine, and the band of pale violet fire along the cutting edge
-            ctx.BeginPath(); ctx.MoveTo(5.5, -1.7); ctx.QuadraticCurveTo(mid, -2.2, tipX, tipY); ctx.QuadraticCurveTo(5 + len * 0.66, 4.2, 5.5, 2.1); ctx.ClosePath();
-            ctx.FillStyle(Rgba.Hex("#1b1034")); ctx.Fill(); ctx.LineWidth = 0.35; ctx.StrokeStyle(Palette.Blk); ctx.Stroke();
-            ctx.StrokeStyle(Rgba.Hex("#5a4a8c")); ctx.LineWidth = 0.9; ctx.BeginPath(); ctx.MoveTo(5.5, -1.4); ctx.QuadraticCurveTo(mid, -1.9, tipX - 1, tipY + 0.3); ctx.Stroke();
-            ctx.BeginPath(); ctx.MoveTo(tipX, tipY); ctx.QuadraticCurveTo(ecx, 4.2, 5.5, 2.1); ctx.LineTo(6, 0.4); ctx.QuadraticCurveTo(ecx, 2.2, tipX - 1.5, tipY + 0.2); ctx.ClosePath();
-            ctx.FillStyle(Rgba.Hex("#b79cff")); ctx.Fill();
-            ctx.BeginPath(); ctx.MoveTo(tipX, tipY); ctx.QuadraticCurveTo(ecx, 4.2, 5.5, 2.1); ctx.LineWidth = 0.8; ctx.StrokeStyle(Rgba.Hex("#efe6ff")); ctx.Stroke();
+            const double ow = KatanaShape.OutlineW;
+            ctx.FillStyle(Palette.Wrap); ctx.FillRect(KatanaShape.GripX0, -KatanaShape.GripHalf, KatanaShape.GripX1 - KatanaShape.GripX0, 2 * KatanaShape.GripHalf);
+            ctx.StrokeStyle(Palette.WrapX); ctx.LineWidth = 0.6; ctx.BeginPath();                                  // four X crossings of the wrap
+            for (int i = 0; i < 4; i++) { double cx = KatanaShape.GripX0 + 1.25 + i * 2.5; ctx.MoveTo(cx - 0.9, -1.35); ctx.LineTo(cx + 0.9, 1.35); ctx.MoveTo(cx - 0.9, 1.35); ctx.LineTo(cx + 0.9, -1.35); }
+            ctx.Stroke();
+            ctx.BeginPath(); ctx.Rect(KatanaShape.GripX0, -KatanaShape.GripHalf, KatanaShape.GripX1 - KatanaShape.GripX0, 2 * KatanaShape.GripHalf); ctx.LineWidth = ow; ctx.StrokeStyle(Palette.Blk); ctx.Stroke();
+            InkShape(ctx, Palette.Steel, () => ctx.Arc(KatanaShape.PommelX, 0, KatanaShape.PommelR, 0, 7), Palette.Blk, ow);
+            Path(KatanaShape.Polygon); ctx.ClosePath(); ctx.FillStyle(Palette.BladeSteel); ctx.Fill();                // the blade
+            Path(KatanaShape.Bevel); ctx.ClosePath(); ctx.FillStyle(Palette.BladeBevel); ctx.Fill();                // the lighter bevel along the cutting edge
+            Path(KatanaShape.Polygon); ctx.ClosePath(); ctx.LineWidth = ow; ctx.StrokeStyle(Palette.Blk); ctx.Stroke();   // the ink outline
+            Path(KatanaShape.EdgeLine(KatanaShape.Width - KatanaShape.EdgeLineW / 2)); ctx.LineWidth = KatanaShape.EdgeLineW; ctx.StrokeStyle(Palette.HiltLt); ctx.Stroke();   // the violet line on the edge, inset by its half width
+            InkShape(ctx, Palette.Steel, () => ctx.Ellipse(KatanaShape.GuardX, 0, KatanaShape.GuardRx, KatanaShape.GuardRy, 0, 0, 7), Palette.Blk, ow);       // the guard, in front of the blade's root
             ctx.EndGroup();
-            // wisps of violet fire streaming back off the blade (away from the way it is cutting), each with a pale core: they fade into the trail
-            for (int i = 1; i <= 5; i++)
+            // the glyphs: faint violet marks along the flat, between the bevel and the spine, every one the same (none lit until rung 8)
+            ctx.BeginGroup("blade.glyphs");
+            ctx.LineCap = Cap.Round; ctx.LineWidth = GlyphW; ctx.StrokeStyle(C(Palette.CurseRgb, GlyphAlpha));
+            for (int k = 0; k < GlyphShapes.Length; k++)
             {
-                double u = (i - 0.35) / 5.4; var e = Edge(u); double x = e.x, y = -1.2, fh = 3 + Hash2(seed, i + 30) * 5, sway = (Hash2(seed, i + 50) - 0.5) * 2.2, w = 1.5 + Hash2(seed, i + 70) * 0.8;
-                ctx.FillStyle(C(Palette.CurseRgb, 0.42));
-                ctx.BeginPath(); ctx.MoveTo(x - w, y); ctx.QuadraticCurveTo(x - w + sway * 0.4 - 0.8, y - fh * 0.55, x + sway - 1.2, y - fh); ctx.QuadraticCurveTo(x + w + sway * 0.4, y - fh * 0.5, x + w, y); ctx.ClosePath(); ctx.Fill();
-                ctx.FillStyle(C("224,208,255", 0.5));
-                ctx.BeginPath(); ctx.MoveTo(x - w * 0.4, y); ctx.QuadraticCurveTo(x + sway * 0.3 - 0.4, y - fh * 0.45, x + sway * 0.8 - 0.6, y - fh * 0.7); ctx.QuadraticCurveTo(x + w * 0.4 + sway * 0.2, y - fh * 0.4, x + w * 0.4, y); ctx.ClosePath(); ctx.Fill();
+                double t = KatanaShape.ParamAtX(GlyphX0 + k * GlyphStep); var c = KatanaShape.Offset(t, GlyphAcross); var e = KatanaShape.Tangent(t);       // e along the blade, (-e.y, e.x) across it toward the edge
+                ctx.Mark("glyph." + k, c.x, c.y);
+                ctx.BeginPath();
+                foreach (var stroke in GlyphShapes[k])
+                    for (int i = 0; i < stroke.Length; i++)
+                    {
+                        double x = c.x + e.x * stroke[i].a - e.y * stroke[i].b, y = c.y + e.y * stroke[i].a + e.x * stroke[i].b;
+                        if (i == 0) ctx.MoveTo(x, y); else ctx.LineTo(x, y);
+                    }
+                ctx.Stroke();
             }
+            ctx.EndGroup();
             ctx.Restore();
         }
+
+        // The glyphs along the blade (first guesses for the designer to judge, tunable: how many, how strong, how thick). Seven marks from 11.5 u to 38.5 u along the blade, each of
+        // two or three strokes about 1 u across (a from -0.5 to 0.5 along the blade, b across it) and 0.25 u wide, simplified from the painting's set; no plain triangle next to a plain X.
+        const double GlyphW = 0.25, GlyphAlpha = 0.68, GlyphX0 = 11.5, GlyphStep = 4.5, GlyphAcross = 0.9;
+        static readonly (double a, double b)[][][] GlyphShapes =
+        {
+            new[] { new[] { (0.3, -0.5), (0.3, 0.1), (0.0, 0.5), (-0.3, 0.1), (-0.1, -0.1) } },                                  // a curl
+            new[] { new[] { (-0.35, -0.5), (0.35, 0.5) }, new[] { (-0.35, 0.5), (0.35, -0.5) } },                                // an X
+            new[] { new[] { (-0.4, 0.5), (0.4, 0.5) }, new[] { (0.0, 0.5), (0.0, -0.5) } },                                      // a T
+            new[] { new[] { (0.0, -0.5), (0.35, 0.0), (0.0, 0.5), (-0.35, 0.0), (0.0, -0.5) } },                                 // a diamond
+            new[] { new[] { (-0.3, 0.5), (0.2, 0.5), (0.2, -0.2), (-0.1, -0.5) } },                                              // a hook
+            new[] { new[] { (-0.4, 0.0), (0.4, 0.0) }, new[] { (0.0, -0.5), (0.0, 0.5) } },                                      // a plus
+            new[] { new[] { (-0.35, -0.5), (0.0, 0.5), (0.35, -0.5) } },                                                         // an angle
+        };
     }
 }

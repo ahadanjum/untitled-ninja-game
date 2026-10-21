@@ -165,7 +165,7 @@ namespace Kaname.Tests
             Assert.AreEqual(0, stand.Look.Vis.Atk, 1e-9);
             var cut = new Rig(PoseKind.Sword); for (int i = 0; i < 7; i++) cut.Step();
             Assert.Greater(cut.Look.Vis.Atk, 0.5);
-            Assert.Greater(cut.Draw().Indices.Count, stand.Draw().Indices.Count + 200, "a cut draws the blade, its aura and its trail");
+            Assert.Greater(cut.Draw().Indices.Count, stand.Draw().Indices.Count + 200, "a cut draws the blade (a katana, with no aura) and its trail");
             var guard = new Rig(PoseKind.Guard); for (int i = 0; i < 6; i++) guard.Step();
             Assert.AreEqual(SwingDir.Guard, guard.Look.Swing.Dir); Assert.Greater(guard.Look.Vis.Atk, 0.5);
         }
