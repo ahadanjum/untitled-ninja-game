@@ -1,6 +1,7 @@
 # IMPLEMENTATION 001, task 3: the cursed katana, base blade with its glyphs
 
-**Status:** written by Opus on 2026-10-21, checked by an independent `/design-review` and revised to its findings (see *Review* at the end). **Not authorized:** it waits for the designer's
+**Status:** written by Opus on 2026-10-21, checked by an independent `/design-review` and revised to its findings (see *Review* at the end).
+**Authorized by the designer on 2026-10-21, with all three questions answered as recommended:** skip the sprite trial and draw in code; match the sheathed hilt; start from the first guesses and tune after playing ("we're okay with the first guesses… I can see how they look, and we can make changes accordingly"). **Not authorized:** it waits for the designer's
 word (rule 1). Implementer once authorized: Sonnet (D120, D131), on branch `u4-polish`.
 **Decisions:** D122 (a dark-steel katana, never a scythe) · D130 (the chosen look, `design/concepts/cursed-katana/`) · **D132 (only the
 base katana with its glyphs: no flames, motes or halo)** · D133 (the glyphs will light up with the blade's charge in rung 8, not now) ·
