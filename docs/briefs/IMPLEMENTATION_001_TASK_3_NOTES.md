@@ -22,6 +22,12 @@ violet flame tongues rising from the spine** with small floating motes; and a so
 the edge and the hilt. There is no central energy stripe. It follows the proportions of sprite-forge's katana v3 (the designer's
 earlier keeper: `design/concepts/sprite-forge/kaname/kaname_katana_v3.svg`) but the hilt wrap differs (X crossings, not v3's diamond lattice).
 
+## Narrowed by the designer (D132, D133, 2026-10-21)
+**Task 3 is the base katana only:** the blade, bevel, angled point, rounded guard, violet X-wrapped hilt, round pommel and **the glyphs, kept and
+faint**. **No flames, no motes, no halo** on the swinging blade (the designer: they look wonky in a swing). This settles points 1 and 3 below and
+eases 4. The flames' and electricity's role moves to the blade's charge (D133, rung 8): the hilt's aura, the glyphs lighting one by one as charges
+build, sparks at a clean parry. Task 3 should draw the glyphs so that lighting them later is possible (one mark each), but lights none of them.
+
 ## The designer's guard rails (from their README)
 - **Preserve** the approved katana geometry, the rounded guard, the violet wrapping, the glowing glyphs and the upward purple flames.
 - **Do not reintroduce an unrelated central energy stripe.**
@@ -38,16 +44,16 @@ earlier keeper: `design/concepts/sprite-forge/kaname/kaname_katana_v3.svg`) but 
 - Not checked: how any of it looks at gameplay scale or in Unity; nothing was imported.
 
 ## Open points for the task 3 brief (Opus decides, or asks the designer)
-1. **It amends D122** ("far fewer flame wisps and a smaller glow", never hiding the steel). The art has visible flames and a halo. *How strong they
+1. *(Settled by D132: no flames or halo on the blade.)* **It amends D122** ("far fewer flame wisps and a smaller glow", never hiding the steel). The art has visible flames and a halo. *How strong they
    are in play* (all the time, only while the blade is live, only on a hit) is for the brief, within the milestone's own test: **a cosmetic
    bloom must not mislead range** (IMPLEMENTATION_001, D123); the halo and flames sit outside the blade and could read as reach.
 2. **Raster or redrawn.** The game draws the sword in code (`KanameArt.cs`, the ink canvas); the package assumed sprites and that was recorded as
    conflict C07. Options: a sprite for the sword, or redraw it procedurally from the vector's geometry. The README says to test the sprite in a
    scratch scene first.
-3. **Flames on a swinging blade.** In the art they rise upward from the spine; the blade rotates through up, forward and down cuts. Do they rise
+3. *(Settled by D132: no flames on the blade.)* **Flames on a swinging blade.** In the art they rise upward from the spine; the blade rotates through up, forward and down cuts. Do they rise
    in world space, stream back along the cut, or stay fixed to the blade? This interacts with task 2's inner crescent and afterimage, which must
    stay the brightest and the only guide to reach.
-4. **Scale.** The art is 1394 px wide; in play the blade is about 46 u. The runes and the fine ink detail will not read at that size; the brief
+4. **Scale.** *(D132: the glyphs stay, at least as faint marks.)* The art is 1394 px wide; in play the blade is about 46 u. The runes and the fine ink detail will not read at that size; the brief
    should say what survives (the silhouette, the edge, the flames' count) and what is dropped.
 5. **The sheathed hilt must match.** Kaname wears the sword at the hip, hilt forward with a violet glow (D087). The idle hilt's wrap is a diamond
    lattice; the chosen hilt is X crossings. Change both together, or say which wins.
@@ -58,6 +64,6 @@ earlier keeper: `design/concepts/sprite-forge/kaname/kaname_katana_v3.svg`) but 
    visible under the effect, and every existing test and the 73 golden replays stay valid (D124).
 
 ## Where this sits
-- Task 1 is built and approved; task 2 is built (D127) and committed; task 2b is a proposal (`IMPLEMENTATION_001_TASK_2B.md`); **task 3 is this**.
+- Task 1 is built and approved; task 2 is built (D127) and committed; task 2b is built and approved (D135, `IMPLEMENTATION_001_TASK_2B.md`); **task 3 is this**.
 - sprite-forge concepts for the katana (v1, v2, v3, and an unfinished v3 "cursed" draft) are in `design/concepts/sprite-forge/kaname/`. The
   designer's chosen design supersedes the draft; v3 stays as the keeper for shape.

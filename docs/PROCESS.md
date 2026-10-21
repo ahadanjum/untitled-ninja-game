@@ -67,7 +67,7 @@ each rung keeps its tests and its tuned numbers.
 | 5 | Pogo and attack-to-reset movement *(approved, D106)* | The bounce, the chain |
 | 6 | The hold-and-release strike (the draw) *(approved, D108)* | Charge feel, release |
 | 7 | Parry, a health bar, and the red and yellow language, on a test dummy (a failed parry costs health, D082) *(built, D109; the designer found the parry awful, so it was rebuilt, D110, like Little Shinobi's with a glint telegraph; awaiting their hands again)* | The window, the feedback, "the big opening" |
-| 8 | The blade's charge: seals burning, the violet-black pulse and smoke, the scar | The look of power |
+| 8 | The blade's charge (D133): a meter filled by blows and more by parries, spent on heals and special attacks; shown by the sheathed hilt's aura, the glyphs lighting, sparks at a parry; the scar | The look of power, the reward for a parry |
 | 9 | Tools (shuriken; limited use, refilled on rest) | Throw feel, use |
 | 10 | The rope: zip, swing, latch | Reliability above all |
 | 11 | Wall cling and double jump | Traversal feel |
