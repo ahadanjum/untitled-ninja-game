@@ -11,6 +11,10 @@ test-results/
 *.log
 .claude/settings.local.json
 
+# sprite-forge's throwaway renders (the skill's inspection frames); the deliverables beside each SVG are kept
+design/concepts/sprite-forge/**/*_inspect.png
+design/concepts/sprite-forge/**/*_frames/
+
 # Unity (the project lives in unity/)
 unity/[Ll]ibrary/
 unity/[Tt]emp/

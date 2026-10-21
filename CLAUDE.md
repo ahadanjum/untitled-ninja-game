@@ -86,7 +86,9 @@ Shinobi) · `js/stage.js` the test stage (ground, four pillars of 1–4 tiles, a
 scarf · `js/art_hero.js` how he is drawn (one function) · `js/dummy.js` the test dummies for the sword and the pogo (two posts and a stair of three hanging ones) · `js/striker.js` the test attacker for the parry · `js/game.js` the loop, camera, stage and HUD drawing · `dev/harness.js`
 test driver · `dev/tests.js` the acceptance tests · `dev/run.mjs` the runner (ported from Little Shinobi) · `design/concepts/` the
 drawn looks (the chosen one is **C**; round 1 is archived) · `unity/` the Unity project (its layout is in `docs/UNITY-PORT.md`) ·
-`docs/Kaname_Documentation/` the designer's documentation package (D119) · `docs/briefs/` one brief per authorized task.
+`docs/Kaname_Documentation/` the designer's documentation package (D119) · `docs/briefs/` one brief per authorized task ·
+`tools/sprite-forge/` + `.claude/skills/sprite-forge/` the vendored concept-art tool (D129; `/sprite-forge`, output under `design/concepts/sprite-forge/`;
+source and patches in `tools/sprite-forge/UPSTREAM.md`; concepts only, not game code, and Unity owns the look).
 
 ## The numbers are the design (as the code has them; `dev/tests.js` checks these)
 World units (u) are Little Shinobi's pixels: one tile is 32 u, Kaname's body is 16 × 34 u. **Run 240 u/s**; ground accel 3000 (0 to top
