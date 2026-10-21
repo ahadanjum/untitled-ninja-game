@@ -1,6 +1,6 @@
 # IMPLEMENTATION 001, task 2b: hit-frame readability (proposal)
 
-**Status:** a proposal written by Opus on 2026-10-19; **waits for the designer's review and authorization.** Implementer once authorized:
+**Status:** authorized 2026-10-19 and built 2026-10-21 by Sonnet (uncommitted); **waits for the designer's playtest.** What was built and measured: `docs/UNITY-PORT.md`, *Task 2b*. (Originally a proposal written by Opus on 2026-10-19.) Implementer once authorized:
 Sonnet (D120). It builds on task 2 (uncommitted on branch `u4-polish`).
 **Decisions:**
 - D128: the up strike may hit slightly behind him where the blade visibly connects; substantial invisible hits farther behind are

@@ -181,7 +181,7 @@ namespace Kaname.Tests
             }
             Arc("forward, high to low", HeroLook.Swings(SwingDir.Fwd), 11, -15, -1.50, -0.68, -0.22, 0.19, 0.20);
             Arc("forward, low to high", HeroLook.Swings(SwingDir.Fwd, true), 11, -15, 0.09, 0.09, -0.30, -0.76, -1.05);
-            Arc("up", HeroLook.Swings(SwingDir.Up), 14, -22, -2.85, -2.60, -1.80, -1.22, -1.00);
+            Arc("up", HeroLook.Swings(SwingDir.Up), 13, -28, -2.85, -2.60, -1.76, -1.17, -1.00);
             Arc("down", HeroLook.Swings(SwingDir.Down), 12, -10, 0.80, 1.20, 1.75, 2.45, 2.60);
             Assert.AreEqual(0.08, HeroLook.SweepTime, "the sweep takes 0.08 s from the box going live");
             foreach (var (dir, alt) in new[] { (SwingDir.Fwd, false), (SwingDir.Fwd, true), (SwingDir.Up, false), (SwingDir.Down, false) })
@@ -227,7 +227,7 @@ namespace Kaname.Tests
         {
             double Angle(SwingDir dir, double lean)
             {
-                var l = new HeroLook(new Tuning()); l.Vis.Atk = 1; l.Vis.Lean = lean;
+                var l = new HeroLook(new Tuning()); l.Vis.Atk = 1; l.Vis.Lean = lean; l.In.Y = -300;       // in the air: no surface turns the blade back (R3), so this isolates the lean
                 l.Swing.Dir = dir; l.Swing.T = 0.1; l.Swing.Live0 = 0.03; l.Swing.Live1 = 0.14; l.Swing.Total = 0.2; l.Swing.P = 0.5;
                 return l.Place().Ang + lean;                                                  // the blade's angle in the world: the body's angle, and the body's lean
             }

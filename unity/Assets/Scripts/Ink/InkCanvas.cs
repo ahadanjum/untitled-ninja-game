@@ -227,12 +227,42 @@ namespace Kaname.Ink
             StrokePolyline(new List<V2> { new V2(x, y), new V2(x + w, y), new V2(x + w, y + h), new V2(x, y + h) }, true);
         }
 
+        // Rectangles (in canvas units) that fills do not draw into: the stage's solids, so a slash stops at a floor or a pillar instead of passing through it.
+        // Each filled polygon is cut into triangles and each triangle is cut against every rectangle (what is left is convex). Strokes ignore it.
+        public IReadOnlyList<(double x0, double y0, double x1, double y1)> Exclude;
+
         void FillPolygon(List<V2> user, Rgba flat, Gradient grad)
         {
             if (user.Count < 3) return;
             var dev = new List<V2>(user.Count); foreach (var p in user) dev.Add(st.Ctm.Apply(p));
             if (st.Clip != null) { dev = ClipConvex(dev, st.Clip); if (dev.Count < 3) return; }
-            EmitPolygon(dev, flat, grad);
+            if (Exclude == null || Exclude.Count == 0) { EmitPolygon(dev, flat, grad); return; }
+            var tris = new List<int>(); Triangulate(dev, tris);
+            for (int t = 0; t + 2 < tris.Count; t += 3)
+            {
+                var pieces = new List<List<V2>> { new List<V2> { dev[tris[t]], dev[tris[t + 1]], dev[tris[t + 2]] } };
+                foreach (var r in Exclude) pieces = SubtractRect(pieces, r);
+                foreach (var pc in pieces) if (pc.Count >= 3) EmitPolygon(pc, flat, grad);
+            }
+        }
+
+        // convex polygons minus one rectangle: what lies left of it, right of it, and above and below it within its columns (y runs down)
+        static List<List<V2>> SubtractRect(List<List<V2>> polys, (double x0, double y0, double x1, double y1) r)
+        {
+            var res = new List<List<V2>>();
+            List<V2> Rect(double x0, double y0, double x1, double y1) => new List<V2> { new V2(x0, y0), new V2(x1, y0), new V2(x1, y1), new V2(x0, y1) };
+            const double Big = 1e7;
+            foreach (var pg in polys)
+            {
+                double minX = double.MaxValue, maxX = double.MinValue, minY = double.MaxValue, maxY = double.MinValue;
+                foreach (var p in pg) { minX = Math.Min(minX, p.X); maxX = Math.Max(maxX, p.X); minY = Math.Min(minY, p.Y); maxY = Math.Max(maxY, p.Y); }
+                if (maxX <= r.x0 || minX >= r.x1 || maxY <= r.y0 || minY >= r.y1) { res.Add(pg); continue; }       // clear of the rectangle
+                foreach (var c in new[] { Rect(-Big, -Big, r.x0, Big), Rect(r.x1, -Big, Big, Big), Rect(r.x0, -Big, r.x1, r.y0), Rect(r.x0, r.y1, r.x1, Big) })
+                {
+                    var piece = ClipConvex(pg, c); if (piece.Count >= 3) res.Add(piece);
+                }
+            }
+            return res;
         }
 
         // ---- stroke ----

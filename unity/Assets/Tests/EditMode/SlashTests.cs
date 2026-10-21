@@ -348,14 +348,18 @@ namespace Kaname.Tests
         {
             var cut = Play(c); var f2 = cut.Frames[2]; var b = f2.Box.Value; var tip = f2.Marks["blade.4"];
             double along = c.Dir == SwingDir.Fwd ? (tip.Y - b.Y) / b.H : (tip.X - b.X) / b.W; string axis = c.Dir == SwingDir.Fwd ? "height" : "width";
-            Assert.That(along, Is.InRange(0.25, 0.75), $"{c.Name} step 2: the tip {At(tip)} is {along * 100:0} % of the way across the box's {axis} ({Show(b)}), not between 25 and 75 %");
+            // (2b, R3: a down strike so near the floor that the blade cannot reach its hit-frame angle without sinking in rests on the floor instead, a little further
+            // forward or back than mid-box: then the tip may be up to 10 % of the box's width past its front or back edge. Only a tip that is on the floor gets this.)
+            bool resting = c.Dir == SwingDir.Down && Math.Abs(tip.Y - Stage.FloorBelow(tip.X, tip.Y - 2)) <= 0.6;
+            Assert.That(along, resting ? Is.InRange(-0.1, 1.1) : Is.InRange(0.25, 0.75), $"{c.Name} step 2: the tip {At(tip)} is {along * 100:0} % of the way across the box's {axis} ({Show(b)}), not between {(resting ? "-10 and 110" : "25 and 75")} %");
             if (!c.Hit) return;
             foreach (var f in cut.Frames)                                                              // the picture the hit freezes: step 2, held through the hit-stop
             {
                 if (f.K != 2 && !f.Frozen) continue;
                 double best = double.MaxValue; string near = "";
                 foreach (var k in new[] { "blade.2", "blade.3", "blade.4" }) { double d = Outside(f.Marks[k], cut.Target.Value); if (d < best) { best = d; near = $"{k} {At(f.Marks[k])}"; } }
-                Assert.LessOrEqual(best, 4, $"{c.Name} step {f.K}{(f.Frozen ? " (held still by the hit)" : "")}: the blade is {best:0.0} u from the struck dummy ({Show(cut.Target.Value)}); nearest {near}, needs 4 u");
+                double need = resting ? 8 : 4;                                                         // (a blade resting on the floor may be a little further from the post: the slash layers show the contact, which the frozen-frame tests below measure)
+                Assert.LessOrEqual(best, need, $"{c.Name} step {f.K}{(f.Frozen ? " (held still by the hit)" : "")}: the blade is {best:0.0} u from the struck dummy ({Show(cut.Target.Value)}); nearest {near}, needs {need} u");
             }
         }
 
@@ -397,7 +401,7 @@ namespace Kaname.Tests
             return (true, hitStep, worst, gap);
         }
 
-        static (double lo, double hi) Window(Cut5 cut) => cut == Cut5.Up ? (-10, 40) : cut == Cut5.Down ? (-30, 35) : (5, 65);        // the target's middle from his middle: forward 5 u ahead to the reach limit, up 10 u behind to 40 u ahead, down 30 u behind to 35 u ahead
+        static (double lo, double hi) Window(Cut5 cut) => cut == Cut5.Up ? (-30, 40) : cut == Cut5.Down ? (-30, 35) : (5, 65);        // the target's middle from his middle: forward 5 u ahead to the reach limit, up 30 u behind to 40 u ahead (2b: it was 10 u behind), down 30 u behind to 35 u ahead
 
         static IEnumerable<object[]> ContactCases()
         {
@@ -418,6 +422,102 @@ namespace Kaname.Tests
             }
             Assert.Greater(hits, 5, $"{cut} {move} {face}: the cases are not vacuous (the simulation registered {hits} hits on the first live step)");
             Assert.IsEmpty(problems, $"{cut}, {move}, facing {face}, window {lo:0} to {hi:0} u:\n" + string.Join("\n", problems));
+        }
+
+        // ---- task 2b (R1 to R3) ----
+
+        // Every up-strike position at which the blade or the bright cut visibly touched the dummy before 2b (measured on task 2's code, 2.5 u apart, offsets as in Probe)
+        // still does (D128: the close-range backward hits stay visible).
+        static readonly (Move move, double from, double to)[] UpBefore2b = { (Move.Stand, -25, 20), (Move.Run, -20, 22.5), (Move.Sprint, -10, 22.5) };
+
+        [Test]
+        public void EveryUpStrikePositionThatShowedItsBladeBeforeStillDoes([Values(1, -1)] int face)
+        {
+            var lost = new List<string>(); int n = 0;
+            foreach (var (move, from, to) in UpBefore2b)
+                for (double o = from; o <= to + 1e-9; o += 2.5)
+                {
+                    var (hit, step, cls, gap) = Probe(Cut5.Up, move, face, o); n++;
+                    if (!hit || cls != 'B') lost.Add($"{move} {o:0.0}: {(hit ? cls.ToString() + " gap " + gap.ToString("0.00") : "no hit")}");
+                }
+            Assert.Greater(n, 45); Assert.IsEmpty(lost, $"up strikes that showed the blade before 2b and no longer do, facing {face}:\n" + string.Join("\n", lost));
+        }
+
+        // The straightening (R1): at the frame a hit freezes at most 30 % of the run's or sprint's lean is left, and it comes back after the swing.
+        [Test]
+        public void HeStraightensForAnUpStrikeAndTheLeanComesBack([Values(Move.Run, Move.Sprint)] Move move, [Values(1, -1)] int face)
+        {
+            var r = new Rig(); var h = r.H; h.Place(0, 0, 0, 0, face); r.C.Push = face; r.C.SetHeld(face > 0 ? Act.Right : Act.Left, true); if (move == Move.Sprint) r.C.SetHeld(Act.Dash, true);
+            for (int i = 0; i < 40; i++) r.Step();
+            double lean0 = Math.Abs(r.Look.Vis.Lean); Assert.Greater(lean0, 0.1, "the run leans him");
+            r.C.SetHeld(Act.Up, true); double at2 = 0, end = 0;
+            for (int k = 0; k <= 30; k++)
+            {
+                if (k == 0) { r.C.SetHeld(Act.Attack, true); r.C.Press(Act.Attack); } else if (k == 1) r.C.SetHeld(Act.Attack, false);
+                r.Step(); if (k == 2) at2 = Math.Abs(r.Look.Vis.Lean); if (k == 30) end = Math.Abs(r.Look.Vis.Lean);
+            }
+            Assert.LessOrEqual(at2, 0.3 * lean0, $"{move}: {at2:0.000} of the run's lean {lean0:0.000} is left on step 2");
+            Assert.GreaterOrEqual(end, 0.8 * lean0, $"{move}: the lean has not come back ({end:0.000} of {lean0:0.000})");
+        }
+
+        // The up cut's tip, its two ends and the blade's tip stay within 4 u of the up box (the hand is raised, the cut is no bigger).
+        [TestCaseSource(nameof(OnTheGround))]
+        public void TheUpCutStaysWithin4uOfItsBox(Case c)
+        {
+            if (c.Dir != SwingDir.Up) return;
+            foreach (var f in Play(c).Frames)
+            {
+                if (!f.Live) continue;
+                foreach (var k in new[] { "inner.from", "inner.to", "inner.lead", "blade.4" })
+                    Assert.LessOrEqual(Outside(f.Marks[k], f.Box.Value), 4, $"{c.Name} step {f.K}: {k} {At(f.Marks[k])} is {Outside(f.Marks[k], f.Box.Value):0.0} u from the box ({Show(f.Box.Value)})");
+            }
+        }
+
+        // The floor (R3): the blade's body and every part of the slash stay out of the stage's solids, for a down strike from every height near the ground, on the ground
+        // and on top of a pillar, beside a pillar's edge, and for forward and up cuts on the ground.
+        static string Inside(InkCanvas cv, double tolerance)
+        {
+            foreach (var (name, first, count) in cv.Groups)
+            {
+                if (name != "blade.body" && name != "cut.bright" && name != "cut.lead" && name != "after") continue;
+                for (int i = first; i < first + count; i++)
+                {
+                    var v = cv.Verts[cv.Indices[i]];
+                    foreach (var sol in Stage.Solids)
+                        if (v.X > sol.Box.X + tolerance && v.X < sol.Box.X + sol.Box.W - tolerance && v.Y > sol.Box.Y + tolerance && v.Y < sol.Box.Y + sol.Box.H && cv.Colors[cv.Indices[i]].A >= 0.01f)
+                            return $"{name} vertex ({v.X:0.0}, {v.Y:0.0}) is {v.Y - sol.Box.Y:0.00} u below a surface at y {sol.Box.Y:0.0} (x {sol.Box.X:0}..{sol.Box.X + sol.Box.W:0})";
+                }
+            }
+            return null;
+        }
+
+        static IEnumerable<object[]> DownNearSurfaces()
+        {
+            foreach (int face in new[] { 1, -1 })
+                foreach (var (x, top) in new[] { (240.0, 0.0), (450.0, -32.0), (395.0, 0.0), (470.0, -32.0), (1065.0, -128.0) })        // open ground, the 1-tile pillar's top, ground 13 u from its wall, near the top's edge, the 4-tile pillar's top
+                    foreach (double up in new[] { 2.0, 8, 14, 20, 30, 40, 50, 60 })
+                        yield return new object[] { face, x, top, up };
+        }
+
+        [TestCaseSource(nameof(DownNearSurfaces))]
+        public void ADownStrikeNearASurfaceNeverDrawsTheBladeOrTheSlashIntoIt(int face, double x, double top, double up)
+        {
+            var r = new Rig(); var h = r.H; h.Place(x, top - up, 0, 0, face); r.W.Cam.X = r.W.CamPrev = h.Cx; r.Step(); r.C.SetHeld(Act.Down, true);
+            for (int k = 0; k <= 16; k++)
+            {
+                if (k == 0) { r.C.SetHeld(Act.Attack, true); r.C.Press(Act.Attack); } else if (k == 1) r.C.SetHeld(Act.Attack, false);
+                r.Step(); if (h.OnGround) break;                                                                  // a down strike is an air attack: it is judged until he lands
+                var bad = Inside(r.Draw(), 0.05); Assert.IsNull(bad, $"down strike facing {face} at x {x:0} from {up:0} u above y {top:0}, step {k}: {bad}");
+            }
+        }
+
+        [TestCaseSource(nameof(OnTheGround))]
+        public void AForwardOrUpCutOnTheGroundNeverDrawsTheSlashIntoIt(Case c)
+        {
+            foreach (var f in Play(c).Frames)
+                foreach (var t in Of(f, "cut.bright", "cut.lead", "after"))
+                    foreach (var v in new[] { t.A, t.B, t.C })
+                        Assert.LessOrEqual(v.Y, f.Ry + 0.05, $"{c.Name} step {f.K}: a corner of the slash {At(v)} is {v.Y - f.Ry:0.00} u under the floor");
         }
 
         [TestCaseSource(nameof(Cases))]

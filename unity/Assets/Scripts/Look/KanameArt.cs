@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Kaname.Ink;
 using Kaname.Sim;
 using static Kaname.Look.Brush;
@@ -60,6 +61,15 @@ namespace Kaname.Look
         }
 
         // `t` is the world's clock (the blinking and the pulsing), (rx, ry) is where his feet are, `alpha` how far between the last two steps the picture is
+        // the stage's solids as rectangles: what the slash layers are cut against
+        static readonly List<(double x0, double y0, double x1, double y1)> StageRects = BuildStageRects();
+        static List<(double x0, double y0, double x1, double y1)> BuildStageRects()
+        {
+            var r = new List<(double, double, double, double)>();
+            foreach (var sol in Stage.Solids) r.Add((sol.Box.X, sol.Box.Y, sol.Box.X + sol.Box.W, sol.Box.Y + sol.Box.H));
+            return r;
+        }
+
         public static void DrawKaname(InkCanvas ctx, HeroLook P, double t, double rx, double ry, double alpha)
         {
             var inp = P.In; var v = P.Vis; double run = v.Run, air = v.Air, rise = v.Rise, d = v.Dash;
@@ -78,7 +88,7 @@ namespace Kaname.Look
             ctx.Translate(rx, ry);
             ctx.Scale(inp.Face * (1 + v.Sq * 0.4 + d * HeroLook.DashStretch), 1 - v.Sq * 0.4 - d * HeroLook.DashSquash);   // squash and stretch (a dash is long and low)
             ctx.Rotate(v.Lean);                                                                                          // leaning into the run, further into a sprint, furthest in a dash
-            var Q = P.Place();
+            var Q = P.Place(rx, ry);
             double l1 = Q.L1, l2 = Q.L2, lift1 = Q.Lift1, lift2 = Q.Lift2, bob = Q.Bob, step = Q.Step, hy = Q.Hy, hx = Q.Hx, hyy = Q.Hyy, tx = Q.Tx, ty = Q.Ty;
             double w1x = Q.W1x, w1y = Q.W1y, kx = Q.Kx, ky = Q.Ky, wA = Q.WA;
             double pulse = 0.5 + 0.5 * Math.Sin(t * 2.4);
@@ -154,7 +164,8 @@ namespace Kaname.Look
                     ctx.BeginPath(); ctx.Arc(w1x, w1y, 6 + ph * 16, 0, 7); ctx.LineWidth = 1.2; ctx.StrokeStyle(C("217,200,255", 0.9 * (1 - ph))); ctx.Stroke();
                 }
             }
-            if (HeroLook.Pinned(P.Swing.Dir)) DrawSlash(ctx, P, Q); else DrawCrescent(ctx, P, Q);       // a forward, up or down cut has the two-layer slash; the draw keeps its trail (U5)
+            if (HeroLook.Pinned(P.Swing.Dir)) { ctx.Exclude = StageRects; DrawSlash(ctx, P, Q); ctx.Exclude = null; }   // the slash is not drawn into the floor or a pillar (the blade is not clipped: it is turned back instead, in HeroLook.Place)
+            else DrawCrescent(ctx, P, Q);       // a forward, up or down cut has the two-layer slash; the draw keeps its trail (U5)
             DrawBlade(ctx, P, Q);
             if (inp.ParryT > 0) Glint(ctx, Q.W1x + Math.Cos(Q.Ang) * 40, Q.W1y + Math.Sin(Q.Ang) * 40, 7 + 2 * Math.Sin(t * 40), "225,215,255", 0.9);   // the open parry: a small pale glint at the blade's tip
             ctx.Restore();

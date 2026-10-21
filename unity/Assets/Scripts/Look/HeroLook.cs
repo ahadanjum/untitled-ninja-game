@@ -137,9 +137,15 @@ namespace Kaname.Look
             v.Charge = Mathx.Approach(v.Charge, In.Charge, dt * 10);                                    // he coils as the charge builds
             double sprintT = Mathx.Clamp((Math.Abs(In.Vx) - k.Run) / (k.Sprint - k.Run), 0, 1) * (dashing ? 0 : 1) * (In.OnGround ? 1 : 0.6);
             v.Sprint = Mathx.Approach(v.Sprint, sprintT, dt * 7);                                       // faster than a run, so it builds visibly
-            double leanT = Mathx.Clamp(In.Vx / k.Run, -1, 1) * 0.13 * In.Face + v.Sprint * 0.2 + v.Dash * 0.36
+            // an up strike straightens him: the run's, sprint's and dash's lean is dropped for the length of the swing (the hand stays under the blade's reach), quickly
+            bool upCut = a != null && a.Dir == SwingDir.Up && In.ParryT <= 0;
+            double leanT = upCut ? v.Atk * -0.04
+                : Mathx.Clamp(In.Vx / k.Run, -1, 1) * 0.13 * In.Face + v.Sprint * 0.2 + v.Dash * 0.36
                 + v.Atk * (sw.Dir == SwingDir.Up ? -0.04 : sw.Dir == SwingDir.Down ? 0.06 : 0.1) - v.Charge * 0.1 - (In.DeadT > 0 ? 1.3 : 0);
-            v.Lean = Mathx.Lerp(v.Lean, leanT, 1 - Math.Exp(-dt * 16));
+            leanT -= upCut ? v.Charge * 0.1 + (In.DeadT > 0 ? 1.3 : 0) : 0;
+            double leanRate = upCut || upLean ? UpLeanRate : 16;
+            upLean = upCut || (upLean && Math.Abs(v.Lean - leanT) > 0.01);                              // it eases back at the same quick rate once the swing is over
+            v.Lean = Mathx.Lerp(v.Lean, leanT, 1 - Math.Exp(-dt * leanRate));
             v.Sqv += (-380 * v.Sq - 24 * v.Sqv) * dt; v.Sq += v.Sqv * dt;                               // squash and stretch: a damped spring back to rest
             BlinkIn -= dt;
             if (BlinkIn <= 0) { Blink = 0.14; BlinkIn = 2.2 + random() * 3; }
@@ -196,6 +202,8 @@ namespace Kaname.Look
         // follow-through ends. The damaging part is N to O, drawn over the box the blow really covers. The draw and the guard keep the two-angle arc (A0 to
         // A1) and the old easing: for them C = N = I = A0 and O = E = A1.
         public const double BladeLen = 40;
+        public const double UpLeanRate = 40;                            // how quickly he straightens for an up strike, per second (a look constant; his ordinary lean eases at 16)
+        bool upLean;
         public const double SweepTime = 0.08;                          // how long the blade takes from I to O, from the moment the box goes live (a look constant, not a tuning number)
         public readonly struct Arc
         {
@@ -210,7 +218,7 @@ namespace Kaname.Look
             {
                 case SwingDir.Fwd: return alt ? new Arc(11, -15, 0.09, 0.09, -0.30, -0.76, -1.05, 45)       // low to high: from the knee, up across the front, to above the head
                                               : new Arc(11, -15, -1.50, -0.68, -0.22, 0.19, 0.20, 45);      // high to low: cocked over his head, across the front, to the knee
-                case SwingDir.Up: return new Arc(14, -22, -2.85, -2.60, -1.80, -1.22, -1.00, 45);           // from behind and above, over his head, to the front
+                case SwingDir.Up: return new Arc(13, -28, -2.85, -2.60, -1.76, -1.17, -1.00, 45);           // from behind and above, over his head, to the front
                 case SwingDir.Down: return new Arc(12, -10, 0.80, 1.20, 1.75, 2.45, 2.60, 45);              // from the front, down and under, to behind
                 case SwingDir.Draw: return new Arc(14, -15, -0.5, 0.2, 45);        // the draw: one long, flat cut across the front as he lunges
                 default: return new Arc(14, -18, -1.1, -1.1, 45);                  // the parry: the blade held up and forward, not moving
@@ -241,7 +249,96 @@ namespace Kaname.Look
         }
 
         // Every number that places his body for the current pose: used by the drawing and by the speed lines (for their heights).
-        public Pose Place()
+        public Pose Place() => Place(In.Cx, In.Y);
+
+        // The blade's outline, in the blade's own frame (the hand at the origin, pointing along +x): the guard, and the polygon of the spine's and the cutting edge's curves
+        // (the same quadratics DrawBlade fills, flattened), as closed polylines. A cut that would push any edge of them into a solid is stopped at the last angle that does
+        // not (R3): the blade comes to rest on the surface. The grip and pommel are a second polyline, checked only against solids that are not the floor he is over (his hip
+        // is swung a little under his feet by a lean, so against that floor they would always touch).
+        static readonly (double x, double y)[][] BladeParts = BuildBladeParts();
+        static readonly (double x, double y)[] GripPart = { (-9, -2), (4, -1.7), (4, 1.7), (-9, 2), (-9, -2) };
+        static (double x, double y)[][] BuildBladeParts()
+        {
+            double len = BladeLen, tipX = 5 + len, tipY = -len * 0.1, mid = 5 + len * 0.6, ecx = 5 + len * 0.66;
+            (double, double) Q(double x0, double y0, double x1, double y1, double x2, double y2, double t) { double u = 1 - t; return (u * u * x0 + 2 * u * t * x1 + t * t * x2, u * u * y0 + 2 * u * t * y1 + t * t * y2); }
+            var body = new System.Collections.Generic.List<(double, double)>();
+            for (int i = 0; i <= 24; i++) body.Add(Q(5.5, -1.7, mid, -2.2, tipX, tipY, i / 24.0));      // the spine, guard to tip
+            for (int i = 1; i <= 24; i++) body.Add(Q(tipX, tipY, ecx, 4.2, 5.5, 2.1, i / 24.0));        // the cutting edge, tip to guard
+            body.Add((5.5, -1.7));
+            return new[] { body.ToArray(), new (double, double)[] { (4.6, -4.2), (4.6, 4.2) } };
+        }
+        public const double SurfaceMargin = 0.45;                      // how far from a surface the blade's outline stays (the pale edge line along it is 0.8 wide)
+
+        // does the segment (ax, ay)-(bx, by) cross the box x0..x1, y0..y1?
+        static bool Crosses(double ax, double ay, double bx, double by, double x0, double y0, double x1, double y1)
+        {
+            double t0 = 0, t1 = 1, dx = bx - ax, dy = by - ay;
+            bool Clip(double p, double q) { if (Math.Abs(p) < 1e-12) return q >= 0; double t = q / p; if (p < 0) { if (t > t1) return false; if (t > t0) t0 = t; } else { if (t < t0) return false; if (t < t1) t1 = t; } return true; }
+            return Clip(-dx, ax - x0) && Clip(dx, x1 - ax) && Clip(-dy, ay - y0) && Clip(dy, y1 - ay);
+        }
+
+        // is any part of a blade pointing at `ang` (about the hand at (hx, hy) in his own frame) inside a solid? The body is placed as the drawing places it
+        bool BladeInSolid(double ang, double hx, double hy, double rx, double ry, bool flip)
+        {
+            var v = Vis; double c = Math.Cos(v.Lean), s = Math.Sin(v.Lean), ca = Math.Cos(ang), sa = Math.Sin(ang);
+            double fx = In.Face * (1 + v.Sq * 0.4 + v.Dash * DashStretch), fy = 1 - v.Sq * 0.4 - v.Dash * DashSquash;
+            (double x, double y) W((double x, double y) b)
+            {
+                double by = flip ? -b.y : b.y, lx = hx + ca * b.x - sa * by, ly = hy + sa * b.x + ca * by;
+                return (rx + fx * (lx * c - ly * s), ry + fy * (lx * s + ly * c));
+            }
+            bool Hits((double x, double y)[] part, bool grip)
+            {
+                for (int i = 0; i + 1 < part.Length; i++)
+                {
+                    var a = W(part[i]); var b = W(part[i + 1]);
+                    foreach (var sol in Stage.Solids)
+                    {
+                        if (grip && sol.Box.Y >= ry - 0.5) continue;
+                        if (Crosses(a.x, a.y, b.x, b.y, sol.Box.X - SurfaceMargin, sol.Box.Y - SurfaceMargin, sol.Box.X + sol.Box.W + SurfaceMargin, sol.Box.Y + sol.Box.H)) return true;
+                    }
+                }
+                return false;
+            }
+            foreach (var part in BladeParts) if (Hits(part, false)) return true;
+            return Hits(GripPart, true);
+        }
+
+        // R3: the blade is stopped by a surface, as a real blade would be. Walking the arc from where it is cocked (`from`) toward where it is now (`target`), it stops at the
+        // last angle that keeps every part of it out of the solids and rests there; if it is cocked inside a surface already, it rests at the nearest clear angle on the side
+        // that lifts its tip. A look only: the hitbox is unchanged, and the hand does not move.
+        double RestOnSurface(double target, double from, double hx, double hy, double rx, double ry, bool flip)
+        {
+            bool Free(double a) => !BladeInSolid(a, hx, hy, rx, ry, flip);
+            const double Coarse = 0.02;
+            if (!Free(from))
+            {
+                double away = Math.Cos(from) > 0 ? -1 : 1, a0 = from; int n = 0;                    // the way that lifts the tip
+                while (!Free(a0) && n++ < 160) a0 += away * Coarse;
+                if (!Free(a0)) return target;                                              // no clear angle at all (his hand is at a wall): leave the cut as it is
+                from = a0;
+            }
+            double dir = target >= from ? 1 : -1, a = from;
+            while (Math.Abs(target - a) > 1e-9)
+            {
+                double next = a + dir * Math.Min(Coarse, Math.Abs(target - a));
+                if (Free(next)) { a = next; continue; }
+                double lo = a, hi = next;                                                  // lo is clear, hi is not: find the edge
+                for (int i = 0; i < 8; i++) { double m = (lo + hi) / 2; if (Free(m)) lo = m; else hi = m; }
+                return lo;
+            }
+            return target;
+        }
+
+        // is there a solid within the blade's reach of his feet at all? (so the walk above only runs near a surface)
+        static bool NearASolid(double rx, double ry)
+        {
+            foreach (var sol in Stage.Solids)
+                if (rx > sol.Box.X - 110 && rx < sol.Box.X + sol.Box.W + 110 && ry > sol.Box.Y - 130 && ry < sol.Box.Y + sol.Box.H + 110) return true;
+            return false;
+        }
+
+        public Pose Place(double rx, double ry)
         {
             var v = Vis; double run = v.Run, air = v.Air, rise = v.Rise, ph = RunT, d = v.Dash, sp = v.Sprint;
             // stride: the legs scissor as he runs, reach further as he sprints, and trail straight out behind in a dash
@@ -262,6 +359,7 @@ namespace Kaname.Look
                 var g = Swings(Swing.Dir, Swing.Alt); ang = SwingAngle(Swing);
                 if (Pinned(Swing.Dir)) ang -= v.Lean;                                                    // the cut stays level in the world: the lean moves his hand but does not tilt the blade
                 w1x = Mathx.Lerp(w1x, g.Px, wA); w1y = Mathx.Lerp(w1y, g.Py, wA);
+                if (Pinned(Swing.Dir) && NearASolid(rx, ry)) ang = RestOnSurface(ang, g.C - v.Lean, w1x, w1y, rx, ry, g.O < g.N);   // near a surface the blade is stopped by it (R3)
                 kx = Mathx.Lerp(kx, w1x - Math.Cos(ang) * 3, wA); ky = Mathx.Lerp(ky, w1y - Math.Sin(ang) * 3, wA);
             }
             return new Pose { Run = run, Air = air, Rise = rise, D = d, Sp = sp, L1 = l1, L2 = l2, Lift1 = lift1, Lift2 = lift2, Crouch = crouch, Bob = bob, Step = step, Hb = hb, Hy = hy,
